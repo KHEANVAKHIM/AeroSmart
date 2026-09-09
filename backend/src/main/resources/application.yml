@@ -1,0 +1,50 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: aerosmart-backend
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/aerosmart_db}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:10052001}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          batch_size: 50
+        order_inserts: true
+        order_updates: true
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 5000ms
+
+aerosmart:
+  jwt:
+    secret: YWVyb3NtYXJ0LXNlY3JldC1rZXktZm9yLWp3dC1zaWduaW5nLWhzMjU2LXBsZWFzZS1jaGFuZ2UtaW4tcHJvZHVjdGlvbi0xMjM0NTY3ODkw
+    expiration-ms: 86400000
+  seat-hold:
+    duration-minutes: 15
+  redis:
+    address: redis://localhost:6379
+
+logging:
+  level:
+    root: INFO
+    com.aerosmart: INFO
+    org.hibernate.SQL: WARN
