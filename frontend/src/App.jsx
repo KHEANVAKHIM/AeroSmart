@@ -2,7 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import CustomerLayout from './components/layout/CustomerLayout'
 import AdminLayout from './components/layout/AdminLayout'
 
-// Customer Pages
+// Customer Core Pages
 import HomePage from './pages/HomePage'
 import FlightSearchPage from './pages/FlightSearchPage'
 import SeatSelectionPage from './pages/SeatSelectionPage'
@@ -13,6 +13,13 @@ import LoginPage from './pages/LoginPage'
 import RegisterPage from './pages/RegisterPage'
 import AccountPage from './pages/AccountPage'
 import CheckInPage from './pages/CheckInPage'
+
+// Product Specific Booking Pages
+import StaysPage from './pages/StaysPage'
+import FlightHotelPage from './pages/FlightHotelPage'
+import CarRentalPage from './pages/CarRentalPage'
+import AttractionsPage from './pages/AttractionsPage'
+import AirportTaxisPage from './pages/AirportTaxisPage'
 
 // Admin Pages
 import AdminDashboardPage from './pages/admin/AdminDashboardPage'
@@ -32,6 +39,18 @@ export default function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/flights" element={<FlightSearchPage />} />
         <Route path="/flights/:id/seats" element={<SeatSelectionPage />} />
+        
+        {/* Product Navigation Pages */}
+        <Route path="/stays" element={<StaysPage />} />
+        <Route path="/flight-hotel" element={<FlightHotelPage />} />
+        <Route path="/packages" element={<FlightHotelPage />} />
+        <Route path="/car-rental" element={<CarRentalPage />} />
+        <Route path="/cars" element={<CarRentalPage />} />
+        <Route path="/attractions" element={<AttractionsPage />} />
+        <Route path="/airport-taxis" element={<AirportTaxisPage />} />
+        <Route path="/taxis" element={<AirportTaxisPage />} />
+
+        {/* Booking & User Flows */}
         <Route path="/checkout" element={<CheckoutPage />} />
         <Route path="/checkin" element={<CheckInPage />} />
         <Route path="/booking-success/:reference" element={<BookingSuccessPage />} />

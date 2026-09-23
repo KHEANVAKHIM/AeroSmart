@@ -61,23 +61,37 @@ export default function Header() {
   const isVi = language?.code === 'vi'
   const isKm = language?.code === 'km'
 
+  const currentTab = useMemo(() => {
+    const path = location.pathname
+    if (path.startsWith('/stays')) return 'stays'
+    if (path.startsWith('/flight-hotel') || path.startsWith('/packages')) return 'package'
+    if (path.startsWith('/car')) return 'cars'
+    if (path.startsWith('/attractions')) return 'attractions'
+    if (path.startsWith('/airport-taxis') || path.startsWith('/taxis')) return 'taxis'
+    if (path.startsWith('/flights')) return 'flights'
+    return activeProductTab || 'flights'
+  }, [location.pathname, activeProductTab])
+
   const handleSelectProductTab = (tabKey) => {
     if (setActiveProductTab) {
       setActiveProductTab(tabKey)
     }
-    if (location.pathname !== '/') {
+    if (tabKey === 'stays') {
+      navigate('/stays')
+    } else if (tabKey === 'flights') {
       navigate('/')
       setTimeout(() => {
         const heroEl = document.getElementById('search-hero-section')
-        if (heroEl) {
-          heroEl.scrollIntoView({ behavior: 'smooth', block: 'start' })
-        }
-      }, 100)
-    } else {
-      const heroEl = document.getElementById('search-hero-section')
-      if (heroEl) {
-        heroEl.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      }
+        if (heroEl) heroEl.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }, 50)
+    } else if (tabKey === 'package') {
+      navigate('/flight-hotel')
+    } else if (tabKey === 'cars') {
+      navigate('/car-rental')
+    } else if (tabKey === 'attractions') {
+      navigate('/attractions')
+    } else if (tabKey === 'taxis') {
+      navigate('/airport-taxis')
     }
   }
 
@@ -421,8 +435,8 @@ export default function Header() {
             type="button"
             onClick={() => handleSelectProductTab('stays')}
             className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all group ${
-              activeProductTab === 'stays'
-                ? 'bg-white/15 border border-white font-bold text-white shadow-sm'
+              currentTab === 'stays'
+                ? 'bg-white/20 border border-white font-bold text-white shadow-sm'
                 : 'text-white/90 hover:text-white hover:bg-white/10 border border-transparent'
             }`}
           >
@@ -435,8 +449,8 @@ export default function Header() {
             type="button"
             onClick={() => handleSelectProductTab('flights')}
             className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs whitespace-nowrap transition-all group ${
-              activeProductTab === 'flights'
-                ? 'bg-white/15 border border-white font-bold text-white shadow-sm'
+              currentTab === 'flights'
+                ? 'bg-white/20 border border-white font-bold text-white shadow-sm'
                 : 'text-white/90 hover:text-white hover:bg-white/10 border border-transparent font-semibold'
             }`}
           >
@@ -449,8 +463,8 @@ export default function Header() {
             type="button"
             onClick={() => handleSelectProductTab('package')}
             className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs whitespace-nowrap transition-all group ${
-              activeProductTab === 'package'
-                ? 'bg-white/15 border border-white font-bold text-white shadow-sm'
+              currentTab === 'package'
+                ? 'bg-white/20 border border-white font-bold text-white shadow-sm'
                 : 'text-white/90 hover:text-white hover:bg-white/10 border border-transparent font-semibold'
             }`}
           >
@@ -463,8 +477,8 @@ export default function Header() {
             type="button"
             onClick={() => handleSelectProductTab('cars')}
             className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs whitespace-nowrap transition-all group ${
-              activeProductTab === 'cars'
-                ? 'bg-white/15 border border-white font-bold text-white shadow-sm'
+              currentTab === 'cars'
+                ? 'bg-white/20 border border-white font-bold text-white shadow-sm'
                 : 'text-white/90 hover:text-white hover:bg-white/10 border border-transparent font-semibold'
             }`}
           >
@@ -477,8 +491,8 @@ export default function Header() {
             type="button"
             onClick={() => handleSelectProductTab('attractions')}
             className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs whitespace-nowrap transition-all group ${
-              activeProductTab === 'attractions'
-                ? 'bg-white/15 border border-white font-bold text-white shadow-sm'
+              currentTab === 'attractions'
+                ? 'bg-white/20 border border-white font-bold text-white shadow-sm'
                 : 'text-white/90 hover:text-white hover:bg-white/10 border border-transparent font-semibold'
             }`}
           >
@@ -491,8 +505,8 @@ export default function Header() {
             type="button"
             onClick={() => handleSelectProductTab('taxis')}
             className={`flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs whitespace-nowrap transition-all group ${
-              activeProductTab === 'taxis'
-                ? 'bg-white/15 border border-white font-bold text-white shadow-sm'
+              currentTab === 'taxis'
+                ? 'bg-white/20 border border-white font-bold text-white shadow-sm'
                 : 'text-white/90 hover:text-white hover:bg-white/10 border border-white/30 hover:border-white font-semibold'
             }`}
           >
