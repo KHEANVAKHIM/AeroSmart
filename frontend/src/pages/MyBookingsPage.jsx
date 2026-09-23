@@ -185,15 +185,26 @@ export default function MyBookingsPage() {
                       </p>
                     </div>
 
-                    <div className="flex sm:justify-end gap-2">
+                    <div className="flex flex-wrap sm:justify-end gap-2">
                       {isConfirmed && (
-                        <Link
-                          to={`/booking-success/${b.bookingReference}`}
-                          className="btn-outline py-2 px-3 text-xs font-bold flex items-center gap-1.5"
-                        >
-                          <QrCode className="h-3.5 w-3.5" />
-                          <span>{t('myBookings.boardingPass')}</span>
-                        </Link>
+                        <>
+                          <a
+                            href={bookingApi.getDocumentUrl(b.bookingReference, 'PDF')}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="btn-primary py-2 px-3 text-xs font-bold flex items-center gap-1.5 shadow-sm"
+                            title="Download Official PDF Ticket (Factory Method)"
+                          >
+                            <span>PDF Ticket</span>
+                          </a>
+                          <Link
+                            to={`/booking-success/${b.bookingReference}`}
+                            className="btn-outline py-2 px-3 text-xs font-bold flex items-center gap-1.5"
+                          >
+                            <QrCode className="h-3.5 w-3.5" />
+                            <span>{t('myBookings.boardingPass')}</span>
+                          </Link>
+                        </>
                       )}
 
                       {!isCancelled && (

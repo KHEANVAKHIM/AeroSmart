@@ -3,6 +3,7 @@ import { createContext, useContext, useState } from 'react'
 const BookingContext = createContext(null)
 
 export function BookingProvider({ children }) {
+  const [activeProductTab, setActiveProductTab] = useState('flights') // 'stays' | 'flights' | 'package' | 'cars' | 'attractions' | 'taxis'
   const [searchCriteria, setSearchCriteria] = useState({
     origin: 'HAN',
     destination: 'SGN',
@@ -46,6 +47,8 @@ export function BookingProvider({ children }) {
   return (
     <BookingContext.Provider
       value={{
+        activeProductTab,
+        setActiveProductTab,
         searchCriteria,
         updateSearchCriteria,
         selectedFlight,

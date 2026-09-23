@@ -274,51 +274,6 @@ export default function Footer() {
         </div>
       </div>
 
-      {/* 2. Trust & Architecture Highlights Bar */}
-      <div className="border-b border-slate-100 bg-white px-4 py-6 dark:border-navy-800/80 dark:bg-navy-950 sm:px-6 lg:px-8">
-        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-4 text-xs md:grid-cols-4">
-          <div className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-slate-50/70 p-3.5 dark:border-navy-800 dark:bg-navy-900/50">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-cyan-100 text-cyan-700 dark:bg-cyan-500/20 dark:text-cyan-300">
-              <Clock className="h-5 w-5" />
-            </span>
-            <div>
-              <p className="font-bold text-navy-950 dark:text-white">{t('footer.seatHoldTitle')}</p>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400">{t('footer.seatHoldDesc')}</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-slate-50/70 p-3.5 dark:border-navy-800 dark:bg-navy-900/50">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300">
-              <ShieldCheck className="h-5 w-5" />
-            </span>
-            <div>
-              <p className="font-bold text-navy-950 dark:text-white">{t('footer.pciTitle')}</p>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400">{t('footer.pciDesc')}</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-slate-50/70 p-3.5 dark:border-navy-800 dark:bg-navy-900/50">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300">
-              <Sparkles className="h-5 w-5" />
-            </span>
-            <div>
-              <p className="font-bold text-navy-950 dark:text-white">{t('footer.aiTitle')}</p>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400">{t('footer.aiDesc')}</p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-slate-50/70 p-3.5 dark:border-navy-800 dark:bg-navy-900/50">
-            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300">
-              <Headphones className="h-5 w-5" />
-            </span>
-            <div>
-              <p className="font-bold text-navy-950 dark:text-white">{t('footer.hotlineTitle')}</p>
-              <p className="text-[11px] text-slate-500 dark:text-slate-400">{t('footer.hotlineDesc')}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
       {/* 3. Main Footer Matrix */}
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-5 mb-12">

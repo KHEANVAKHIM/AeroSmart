@@ -98,6 +98,22 @@ export const bookingApi = {
   myBookings: () => client.get('/bookings/my-bookings').then((r) => r.data),
   getByReference: (reference) => client.get(`/bookings/${reference}`).then((r) => r.data),
   cancel: (id) => client.post(`/bookings/${id}/cancel`).then((r) => r.data),
+  getDocumentUrl: (reference, format = 'PDF') => {
+    const baseURL = import.meta.env.VITE_API_URL || '/api'
+    return `${baseURL}/bookings/${reference}/documents/download?format=${format}`
+  },
+  getDocumentPreviewUrl: (reference, format = 'PDF') => {
+    const baseURL = import.meta.env.VITE_API_URL || '/api'
+    return `${baseURL}/bookings/${reference}/documents?format=${format}`
+  },
+  fetchDocument: (reference, format = 'PDF') =>
+    client.get(`/bookings/${reference}/documents`, { params: { format } }).then((r) => r.data),
+}
+
+/* --------------------------------------------------------------- checkin */
+export const checkinApi = {
+  lookup: (payload) => client.post('/checkin/lookup', payload).then((r) => r.data),
+  complete: (payload) => client.post('/checkin/complete', payload).then((r) => r.data),
 }
 
 /* ----------------------------------------------------------------- ai */
@@ -109,6 +125,13 @@ export const aiApi = {
 export const destinationsApi = {
   listDeals: (params) => client.get('/destinations/deals', { params }).then((r) => r.data),
   listCountries: () => client.get('/destinations/countries').then((r) => r.data),
+}
+
+/* ------------------------------------------------------------------ user */
+export const userApi = {
+  getProfile: () => client.get('/user/profile').then((r) => r.data),
+  updateProfile: (payload) => client.put('/user/profile', payload).then((r) => r.data),
+  changePassword: (payload) => client.put('/user/change-password', payload).then((r) => r.data),
 }
 
 /* ----------------------------------------------------------------- admin */
@@ -137,6 +160,14 @@ export const adminApi = {
   updateCountry: (id, payload) => client.put(`/admin/countries/${id}`, payload).then((r) => r.data),
   toggleCountry: (id) => client.patch(`/admin/countries/${id}/toggle`).then((r) => r.data),
   deleteCountry: (id) => client.delete(`/admin/countries/${id}`).then((r) => r.data),
+  // User Management
+  listUsers: (params) => client.get('/admin/users', { params }).then((r) => r.data),
+  createUser: (payload) => client.post('/admin/users', payload).then((r) => r.data),
+  updateUser: (id, payload) => client.put(`/admin/users/${id}`, payload).then((r) => r.data),
+  changeUserRole: (id, role) => client.patch(`/admin/users/${id}/role`, null, { params: { role } }).then((r) => r.data),
+  toggleUserStatus: (id) => client.patch(`/admin/users/${id}/toggle`).then((r) => r.data),
+  resetUserPassword: (id, newPassword) => client.post(`/admin/users/${id}/reset-password`, { newPassword }).then((r) => r.data),
+  deleteUser: (id) => client.delete(`/admin/users/${id}`).then((r) => r.data),
 }
 
 export default client

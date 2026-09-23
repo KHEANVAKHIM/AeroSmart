@@ -3,6 +3,7 @@ import { Outlet, Navigate } from 'react-router-dom'
 import AdminSidebar from '../admin/AdminSidebar'
 import AdminTopbar from '../admin/AdminTopbar'
 import { useAuth } from '../../context/AuthContext'
+import ScrollToTopButton from '../common/ScrollToTopButton'
 
 export default function AdminLayout() {
   const { user, isAdmin, loading } = useAuth()
@@ -59,6 +60,7 @@ export default function AdminLayout() {
             </div>
           </div>
         </footer>
+        <ScrollToTopButton />
       </div>
     </div>
   )

@@ -28,6 +28,14 @@ export const SEAT_STATUS = {
 
 export const PAYMENT_METHODS = [
   {
+    id: 'VIETQR',
+    name: 'VietQR (Quét mã Napas 247)',
+    tagline: 'Quét mã QR từ mọi App Ngân hàng',
+    initials: 'QR',
+    brandClass: 'bg-gradient-to-br from-emerald-600 to-teal-700 text-white',
+    ringClass: 'peer-checked:border-emerald-600 peer-checked:ring-emerald-600/30',
+  },
+  {
     id: 'VNPAY',
     name: 'VNPay',
     tagline: 'Bank transfer, ATM & QR',

@@ -2,6 +2,7 @@ import { Outlet } from 'react-router-dom'
 import Header from '../common/Header'
 import Footer from './Footer'
 import AeroMateWidget from '../customer/AeroMateWidget'
+import ScrollToTopButton from '../common/ScrollToTopButton'
 
 export default function CustomerLayout() {
   return (
@@ -12,6 +13,7 @@ export default function CustomerLayout() {
       </main>
       <Footer />
       <AeroMateWidget />
+      <ScrollToTopButton />
     </div>
   )
 }

@@ -1,8 +1,9 @@
-import { Plane, QrCode, CheckCircle, Download, Printer, Share2 } from 'lucide-react'
+import { Plane, QrCode, CheckCircle, Download, Printer, Smartphone, FileText } from 'lucide-react'
 import { formatVND, formatTime, formatDate } from '../../utils/format'
 import AirlineLogo from '../common/AirlineLogo'
 import { useLanguage } from '../../context/LanguageContext'
 import { useCurrency } from '../../context/CurrencyContext'
+import { bookingApi } from '../../api/client'
 
 export default function BoardingPass({ booking }) {
   const { t } = useLanguage()
@@ -14,6 +15,11 @@ export default function BoardingPass({ booking }) {
   const passenger = booking.passengers?.[0]
   const seatNumber = passenger?.seatNumber || '12A'
   const seatClass = passenger?.seatClass === 'BUSINESS' ? t('seat.business') : t('seat.economy')
+
+  const handleDownload = (format) => {
+    const url = bookingApi.getDocumentUrl(booking.bookingReference, format)
+    window.open(url, '_blank')
+  }
 
   const handlePrint = () => {
     window.print()
@@ -147,26 +153,47 @@ export default function BoardingPass({ booking }) {
         </div>
       </div>
 
-      {/* Action Buttons */}
-      <div className="no-print mt-6 flex items-center justify-center gap-4">
-        <button
-          type="button"
-          onClick={handlePrint}
-          className="btn-primary py-3 px-6 text-sm font-bold shadow-lg flex items-center gap-2"
-        >
-          <Printer className="h-4 w-4" />
-          <span>{t('bookingSuccess.printBoardingPass')}</span>
-        </button>
+      {/* Multi-format Document Generators (Factory Method Pattern) */}
+      <div className="no-print mt-6 rounded-2xl bg-white border border-slate-200 p-4 shadow-sm">
+        <div className="flex items-center justify-between mb-3">
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
+            Official Travel Documents (Factory Method Generated)
+          </span>
+          <span className="text-[10px] font-semibold bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-200">
+            Factory Pattern
+          </span>
+        </div>
 
-        <button
-          type="button"
-          onClick={handlePrint}
-          className="btn-outline py-3 px-6 text-sm font-bold flex items-center gap-2"
-        >
-          <Download className="h-4 w-4" />
-          <span>{t('bookingSuccess.downloadPDF')}</span>
-        </button>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <button
+            type="button"
+            onClick={() => handleDownload('PDF')}
+            className="btn-primary py-2.5 px-4 text-xs font-bold shadow-md flex items-center justify-center gap-2"
+          >
+            <Download className="h-4 w-4" />
+            <span>IATA PDF Ticket</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleDownload('WALLET')}
+            className="btn-outline py-2.5 px-4 text-xs font-bold flex items-center justify-center gap-2 hover:bg-slate-50"
+          >
+            <Smartphone className="h-4 w-4 text-slate-700" />
+            <span>Apple Wallet Pass</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleDownload('HTML')}
+            className="btn-outline py-2.5 px-4 text-xs font-bold flex items-center justify-center gap-2 hover:bg-slate-50"
+          >
+            <FileText className="h-4 w-4 text-cyan-600" />
+            <span>Tax Receipt / Invoice</span>
+          </button>
+        </div>
       </div>
     </div>
   )
 }
+
