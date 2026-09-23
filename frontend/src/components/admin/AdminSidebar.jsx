@@ -12,6 +12,8 @@ import {
   X,
   Plane,
   Image as ImageIcon,
+  Users,
+  Sparkles,
 } from 'lucide-react'
 import { useAuth } from '../../context/AuthContext'
 
@@ -19,6 +21,8 @@ const NAV_ITEMS = [
   { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, end: true },
   { to: '/admin/flights', label: 'Flight Schedule', icon: PlaneTakeoff },
   { to: '/admin/bookings', label: 'Bookings & Manifests', icon: TicketCheck },
+  { to: '/admin/services', label: 'Services & Ancillaries', icon: Sparkles },
+  { to: '/admin/users', label: 'User & Accounts', icon: Users },
   { to: '/admin/airports', label: 'Airports & Hubs', icon: Building2 },
   { to: '/admin/destinations', label: 'Destinations & Photos', icon: ImageIcon },
   { to: '/admin/telemetry', label: 'System Telemetry', icon: Activity },
