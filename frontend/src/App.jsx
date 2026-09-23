@@ -16,9 +16,13 @@ import CheckInPage from './pages/CheckInPage'
 
 // Product Specific Booking Pages
 import StaysPage from './pages/StaysPage'
+import HotelDetailPage from './pages/HotelDetailPage'
 import FlightHotelPage from './pages/FlightHotelPage'
+import PackageDetailPage from './pages/PackageDetailPage'
 import CarRentalPage from './pages/CarRentalPage'
+import CarDetailPage from './pages/CarDetailPage'
 import AttractionsPage from './pages/AttractionsPage'
+import AttractionDetailPage from './pages/AttractionDetailPage'
 import AirportTaxisPage from './pages/AirportTaxisPage'
 
 // Admin Pages
@@ -42,11 +46,17 @@ export default function App() {
         
         {/* Product Navigation Pages */}
         <Route path="/stays" element={<StaysPage />} />
+        <Route path="/stays/:id" element={<HotelDetailPage />} />
         <Route path="/flight-hotel" element={<FlightHotelPage />} />
+        <Route path="/flight-hotel/:id" element={<PackageDetailPage />} />
         <Route path="/packages" element={<FlightHotelPage />} />
+        <Route path="/packages/:id" element={<PackageDetailPage />} />
         <Route path="/car-rental" element={<CarRentalPage />} />
+        <Route path="/car-rental/:id" element={<CarDetailPage />} />
         <Route path="/cars" element={<CarRentalPage />} />
+        <Route path="/cars/:id" element={<CarDetailPage />} />
         <Route path="/attractions" element={<AttractionsPage />} />
+        <Route path="/attractions/:id" element={<AttractionDetailPage />} />
         <Route path="/airport-taxis" element={<AirportTaxisPage />} />
         <Route path="/taxis" element={<AirportTaxisPage />} />
 

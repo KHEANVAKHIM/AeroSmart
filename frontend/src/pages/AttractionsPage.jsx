@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react'
+import { Link } from 'react-router-dom'
 import {
   Compass,
   MapPin,
@@ -457,14 +458,23 @@ export default function AttractionsPage() {
                           <span className="text-[10px] text-slate-500 block">/ 1 vé điện tử QR</span>
                         </div>
 
-                        <button
-                          type="button"
-                          onClick={() => handleOpenBooking(attr)}
-                          className="mt-4 w-full flex items-center justify-center gap-1.5 rounded-xl bg-[#003580] py-2.5 text-xs font-bold text-white shadow-md hover:bg-[#002660] dark:bg-sky-500 dark:text-navy-950 dark:hover:bg-sky-400 active:scale-95 transition-all"
-                        >
-                          <Ticket className="h-3.5 w-3.5" />
-                          <span>{isVi ? 'Mua Vé Ngay' : 'Get Tickets'}</span>
-                        </button>
+                        <div className="mt-4 space-y-2">
+                          <Link
+                            to={`/attractions/${attr.id}`}
+                            className="w-full flex items-center justify-center gap-1.5 rounded-xl border-2 border-[#003580] bg-white py-2 text-xs font-bold text-[#003580] hover:bg-sky-50 dark:border-sky-400 dark:bg-navy-900 dark:text-sky-300 dark:hover:bg-navy-800 transition-all"
+                          >
+                            <span>{isVi ? 'Xem Chi Tiết Điểm Đến' : 'View Details'}</span>
+                          </Link>
+
+                          <button
+                            type="button"
+                            onClick={() => handleOpenBooking(attr)}
+                            className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-[#003580] py-2 text-xs font-bold text-white shadow-md hover:bg-[#002660] dark:bg-sky-500 dark:text-navy-950 dark:hover:bg-sky-400 active:scale-95 transition-all"
+                          >
+                            <Ticket className="h-3.5 w-3.5" />
+                            <span>{isVi ? 'Mua Vé Nhanh' : 'Get Tickets'}</span>
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>

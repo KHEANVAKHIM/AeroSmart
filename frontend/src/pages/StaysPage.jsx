@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react'
+import { Link } from 'react-router-dom'
 import {
   Building2,
   MapPin,
@@ -636,14 +637,23 @@ export default function StaysPage() {
                             </div>
                           </div>
 
-                          <button
-                            type="button"
-                            onClick={() => handleOpenBooking(hotel)}
-                            className="mt-4 w-full flex items-center justify-center gap-1.5 rounded-xl bg-[#003580] py-2.5 text-xs font-bold text-white shadow-md hover:bg-[#002660] dark:bg-sky-500 dark:text-navy-950 dark:hover:bg-sky-400 active:scale-95 transition-all"
-                          >
-                            <Sparkles className="h-3.5 w-3.5" />
-                            <span>{isVi ? 'Xem phòng & Đặt ngay' : 'Select Room'}</span>
-                          </button>
+                          <div className="mt-4 space-y-2">
+                            <Link
+                              to={`/stays/${hotel.id}`}
+                              className="w-full flex items-center justify-center gap-1.5 rounded-xl border-2 border-[#003580] bg-white py-2 text-xs font-bold text-[#003580] hover:bg-sky-50 dark:border-sky-400 dark:bg-navy-900 dark:text-sky-300 dark:hover:bg-navy-800 transition-all"
+                            >
+                              <span>{isVi ? 'Xem Chi Tiết Khách Sạn' : 'View Details'}</span>
+                            </Link>
+
+                            <button
+                              type="button"
+                              onClick={() => handleOpenBooking(hotel)}
+                              className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-[#003580] py-2 text-xs font-bold text-white shadow-md hover:bg-[#002660] dark:bg-sky-500 dark:text-navy-950 dark:hover:bg-sky-400 active:scale-95 transition-all"
+                            >
+                              <Sparkles className="h-3.5 w-3.5" />
+                              <span>{isVi ? 'Đặt Phòng Nhanh' : 'Quick Book'}</span>
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>

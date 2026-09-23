@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react'
+import { Link } from 'react-router-dom'
 import {
   Car,
   MapPin,
@@ -460,14 +461,23 @@ export default function CarRentalPage() {
                           <span className="text-[10px] text-slate-500 block">/ ngày (24 giờ)</span>
                         </div>
 
-                        <button
-                          type="button"
-                          onClick={() => handleOpenBooking(car)}
-                          className="mt-4 w-full flex items-center justify-center gap-1.5 rounded-xl bg-[#003580] py-2.5 text-xs font-bold text-white shadow-md hover:bg-[#002660] dark:bg-sky-500 dark:text-navy-950 dark:hover:bg-sky-400 active:scale-95 transition-all"
-                        >
-                          <Sparkles className="h-3.5 w-3.5" />
-                          <span>{isVi ? 'Thuê Xe Ngay' : 'Rent Now'}</span>
-                        </button>
+                        <div className="mt-4 space-y-2">
+                          <Link
+                            to={`/car-rental/${car.id}`}
+                            className="w-full flex items-center justify-center gap-1.5 rounded-xl border-2 border-[#003580] bg-white py-2 text-xs font-bold text-[#003580] hover:bg-sky-50 dark:border-sky-400 dark:bg-navy-900 dark:text-sky-300 dark:hover:bg-navy-800 transition-all"
+                          >
+                            <span>{isVi ? 'Xem Chi Tiết Xe' : 'View Details'}</span>
+                          </Link>
+
+                          <button
+                            type="button"
+                            onClick={() => handleOpenBooking(car)}
+                            className="w-full flex items-center justify-center gap-1.5 rounded-xl bg-[#003580] py-2 text-xs font-bold text-white shadow-md hover:bg-[#002660] dark:bg-sky-500 dark:text-navy-950 dark:hover:bg-sky-400 active:scale-95 transition-all"
+                          >
+                            <Sparkles className="h-3.5 w-3.5" />
+                            <span>{isVi ? 'Thuê Xe Nhanh' : 'Rent Now'}</span>
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
