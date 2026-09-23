@@ -361,7 +361,7 @@ export default function CarRentalPage() {
           </aside>
 
           {/* RESULTS FEED (9 Cols) */}
-          <section className="lg:col-span-9 space-y-4">
+          <section id="car-results-section" className="lg:col-span-9 space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm dark:border-navy-800 dark:bg-navy-900">
               <p className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
                 {isVi ? `Tìm thấy ${filteredCars.length} dòng xe sẵn sàng giao tại sân bay` : `Found ${filteredCars.length} vehicles`}

@@ -526,7 +526,7 @@ export default function StaysPage() {
           </aside>
 
           {/* RIGHT RESULTS SECTION (9 Cols) */}
-          <section className="lg:col-span-9 space-y-4">
+          <section id="stays-results-section" className="lg:col-span-9 space-y-4">
             {/* Results Header with Sorting */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm dark:border-navy-800 dark:bg-navy-900">
               <p className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">

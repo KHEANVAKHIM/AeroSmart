@@ -254,7 +254,7 @@ export default function FlightSearchPage() {
           </aside>
 
           {/* Flight Search Results */}
-          <section className="lg:col-span-9 space-y-4">
+          <section id="flight-results-section" className="lg:col-span-9 space-y-4">
             {/* Results Header with Sorting */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200">
               <p className="text-sm font-semibold text-navy-950">

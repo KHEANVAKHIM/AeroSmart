@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom'
 import {
   Plane,
   ArrowLeftRight,
@@ -47,6 +47,8 @@ const DEFAULT_AIRPORTS = [
 
 export default function FlightSearchHero({ initialCompact = false }) {
   const navigate = useNavigate()
+  const location = useLocation()
+  const [searchParams] = useSearchParams()
   const { searchCriteria, updateSearchCriteria, activeProductTab = 'flights', setActiveProductTab } = useBooking()
   const { language, t } = useLanguage()
 
@@ -57,13 +59,20 @@ export default function FlightSearchHero({ initialCompact = false }) {
   const [modalService, setModalService] = useState(null)
   const [isServiceModalOpen, setIsServiceModalOpen] = useState(false)
 
+  // URL params fallback
+  const urlOrigin = searchParams.get('origin')
+  const urlDest = searchParams.get('destination')
+  const urlDate = searchParams.get('departureDate')
+  const urlPax = searchParams.get('passengers')
+  const urlType = searchParams.get('tripType')
+
   // 1. FLIGHTS FORM STATE
-  const [tripType, setTripType] = useState(searchCriteria.tripType || 'ONE_WAY')
-  const [origin, setOrigin] = useState(searchCriteria.origin || 'HAN')
-  const [destination, setDestination] = useState(searchCriteria.destination || 'SGN')
-  const [departureDate, setDepartureDate] = useState(searchCriteria.departureDate || todayInputValue())
+  const [tripType, setTripType] = useState(urlType || searchCriteria.tripType || 'ONE_WAY')
+  const [origin, setOrigin] = useState(urlOrigin || searchCriteria.origin || 'HAN')
+  const [destination, setDestination] = useState(urlDest || searchCriteria.destination || 'SGN')
+  const [departureDate, setDepartureDate] = useState(urlDate || searchCriteria.departureDate || todayInputValue())
   const [returnDate, setReturnDate] = useState(searchCriteria.returnDate || '')
-  const [passengers, setPassengers] = useState(searchCriteria.passengers || 1)
+  const [passengers, setPassengers] = useState(urlPax ? Number(urlPax) : (searchCriteria.passengers || 1))
 
   // 2. STAYS FORM STATE
   const [stayDestination, setStayDestination] = useState('Phú Quốc (PQC), Việt Nam')
@@ -107,6 +116,15 @@ export default function FlightSearchHero({ initialCompact = false }) {
       .catch(() => {})
   }, [])
 
+  // Sync state if URL params change
+  useEffect(() => {
+    if (urlOrigin) setOrigin(urlOrigin)
+    if (urlDest) setDestination(urlDest)
+    if (urlDate) setDepartureDate(urlDate)
+    if (urlPax) setPassengers(Number(urlPax))
+    if (urlType) setTripType(urlType)
+  }, [urlOrigin, urlDest, urlDate, urlPax, urlType])
+
   const handleSwapAirports = () => {
     const temp = origin
     setOrigin(destination)
@@ -127,41 +145,46 @@ export default function FlightSearchHero({ initialCompact = false }) {
     navigate(
       `/flights?origin=${origin}&destination=${destination}&departureDate=${departureDate}&passengers=${passengers}&tripType=${tripType}`
     )
+    if (location.pathname === '/flights') {
+      setTimeout(() => {
+        window.scrollTo({ top: 350, behavior: 'smooth' })
+      }, 100)
+    }
   }
 
   // Handle Search for Stays (Hotels / Resorts)
   const handleSearchStays = (e) => {
     e?.preventDefault()
-    setModalService({ id: 'hotel', category: 'hotel', searchDest: stayDestination })
-    setIsServiceModalOpen(true)
+    if (setActiveProductTab) setActiveProductTab('stays')
+    navigate('/stays')
   }
 
   // Handle Search for Flight + Hotel
   const handleSearchPackage = (e) => {
     e?.preventDefault()
-    setModalService({ id: 'hotel', category: 'hotel', searchDest: pkgDest, isCombo: true })
-    setIsServiceModalOpen(true)
+    if (setActiveProductTab) setActiveProductTab('package')
+    navigate('/flight-hotel')
   }
 
   // Handle Search for Car Rentals
   const handleSearchCars = (e) => {
     e?.preventDefault()
-    setModalService({ id: 'transfer', category: 'transfer', searchLoc: carLocation })
-    setIsServiceModalOpen(true)
+    if (setActiveProductTab) setActiveProductTab('cars')
+    navigate('/car-rental')
   }
 
   // Handle Search for Attractions
   const handleSearchAttractions = (e) => {
     e?.preventDefault()
-    setModalService({ id: 'fasttrack', category: 'fasttrack', searchAttr: attractionLoc })
-    setIsServiceModalOpen(true)
+    if (setActiveProductTab) setActiveProductTab('attractions')
+    navigate('/attractions')
   }
 
   // Handle Search for Airport Taxis
   const handleSearchTaxis = (e) => {
     e?.preventDefault()
-    setModalService({ id: 'transfer', category: 'transfer', isTaxi: true, airport: taxiPickAirport })
-    setIsServiceModalOpen(true)
+    if (setActiveProductTab) setActiveProductTab('taxis')
+    navigate('/airport-taxis')
   }
 
   const navProducts = [
