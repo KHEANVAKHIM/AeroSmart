@@ -48,4 +48,17 @@ public class User {
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
+
+    private String phone;
+
+    private String passportNo;
+
+    @Column(length = 1000)
+    private String avatarUrl;
+
+    @Column(length = 32)
+    private String provider; // e.g. "LOCAL", "GOOGLE", "FACEBOOK", "APPLE", "WECHAT"
+
+    @Builder.Default
+    private Boolean active = true;
 }

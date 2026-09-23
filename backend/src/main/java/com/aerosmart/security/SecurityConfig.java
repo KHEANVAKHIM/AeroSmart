@@ -46,14 +46,22 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // CORS pre-flight must never require credentials.
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
+                        // Static resources and SPA routes (any path not starting with /api)
+                        .requestMatchers("/", "/index.html", "/assets/**", "/favicon.ico", "/*.svg", "/*.png", "/*.jpg", "/*.jpeg", "/*.ico", "/*.json", "/*.js", "/*.css").permitAll()
+                        .requestMatchers(request -> !request.getRequestURI().startsWith("/api")).permitAll()
+                        // Public API Endpoints
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/checkin/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/flights/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/airports/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/destinations/**").permitAll()
                         .requestMatchers("/api/ai/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/bookings/{reference:[A-Za-z0-9]+}").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/bookings/{reference:[A-Za-z0-9]+}/documents/**").permitAll()
                         .requestMatchers("/error").permitAll()
+                        // Admin API Endpoints
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        // Other API Endpoints
                         .anyRequest().authenticated())
                 .authenticationProvider(daoAuthenticationProvider())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
