@@ -55,6 +55,8 @@ public class BookingService {
     private final PaymentStrategyFactory paymentStrategyFactory;
     private final DistributedSeatLockService seatLockService;
     private final ApplicationEventPublisher eventPublisher;
+    private final com.aerosmart.service.booking.validation.BookingValidationPipeline validationPipeline;
+    private final com.aerosmart.service.pricing.decorator.FlightPricingCalculator pricingCalculator;
 
     private static final String REF_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
     private final SecureRandom random = new SecureRandom();
@@ -176,7 +178,43 @@ public class BookingService {
 
         validateBookingAccess(booking, currentUser);
 
-        // Strategy Pattern: Process payment
+        // Pattern: Chain of Responsibility (Execute Booking Validation Pipeline)
+        User user = booking.getUser();
+        Seat firstSeat = booking.getPassengers().isEmpty() || booking.getPassengers().get(0).getSeat() == null
+                ? null : booking.getPassengers().get(0).getSeat();
+
+        com.aerosmart.service.booking.validation.BookingValidationContext validationCtx =
+                com.aerosmart.service.booking.validation.BookingValidationContext.builder()
+                        .user(user)
+                        .flight(booking.getFlight())
+                        .seat(firstSeat)
+                        .request(request)
+                        .build();
+        validationPipeline.execute(validationCtx);
+
+        // Pattern: Decorator (Calculate total fare dynamically with selected Ancillaries)
+        if (firstSeat != null && booking.getFlight() != null) {
+            BigDecimal multiplier = firstSeat.getPriceMultiplier() != null ? firstSeat.getPriceMultiplier() : BigDecimal.ONE;
+            BigDecimal taxes = new BigDecimal("80000"); // Standard airport security surcharge
+            com.aerosmart.service.pricing.decorator.FlightFareComponent decoratedFare = pricingCalculator.buildFare(
+                    booking.getFlight().getFlightNumber(),
+                    firstSeat.getSeatNumber(),
+                    firstSeat.getSeatClass().name(),
+                    booking.getFlight().getBasePrice(),
+                    multiplier,
+                    taxes,
+                    request.getExtraBaggageKg(),
+                    request.getMealCode(),
+                    request.getHasInsurance(),
+                    request.getInsurancePlan(),
+                    request.getHasLounge()
+            );
+            booking.setTotalAmount(decoratedFare.calculateTotal());
+            log.info("Decorator Pattern applied: [{}] -> Final Amount = {}",
+                    decoratedFare.getDescription(), booking.getTotalAmount());
+        }
+
+        // Pattern: Strategy (Process payment via selected gateway)
         PaymentStrategy strategy = paymentStrategyFactory.getStrategy(request.getPaymentMethod());
         PaymentResult paymentResult = strategy.processPayment(booking, booking.getTotalAmount());
 
@@ -267,26 +305,30 @@ public class BookingService {
     }
 
     public BookingDto toBookingDto(Booking booking) {
-        List<PassengerDto> passengerDtos = booking.getPassengers().stream()
+        if (booking == null) return null;
+
+        List<PassengerDto> passengerDtos = booking.getPassengers() != null
+                ? booking.getPassengers().stream()
                 .map(p -> PassengerDto.builder()
                         .id(p.getId())
                         .fullName(p.getFullName())
                         .passportNumber(p.getPassportNumber())
                         .seatNumber(p.getSeat() != null ? p.getSeat().getSeatNumber() : null)
-                        .seatClass(p.getSeat() != null ? p.getSeat().getSeatClass().name() : null)
+                        .seatClass(p.getSeat() != null && p.getSeat().getSeatClass() != null ? p.getSeat().getSeatClass().name() : "ECONOMY")
                         .build())
-                .collect(Collectors.toList());
+                .collect(Collectors.toList())
+                : new ArrayList<>();
 
         return BookingDto.builder()
                 .id(booking.getId())
                 .bookingReference(booking.getBookingReference())
-                .status(booking.getStatus().name())
-                .totalAmount(booking.getTotalAmount())
+                .status(booking.getStatus() != null ? booking.getStatus().name() : "PENDING")
+                .totalAmount(booking.getTotalAmount() != null ? booking.getTotalAmount() : BigDecimal.ZERO)
                 .createdAt(booking.getCreatedAt())
                 .holdExpiresAt(booking.getHoldExpiresAt())
                 .paymentMethod(booking.getPaymentMethod())
                 .transactionId(booking.getTransactionId())
-                .flight(flightService.toFlightDto(booking.getFlight()))
+                .flight(booking.getFlight() != null ? flightService.toFlightDto(booking.getFlight()) : null)
                 .passengers(passengerDtos)
                 .userEmail(booking.getUser() != null ? booking.getUser().getEmail() : null)
                 .userFullName(booking.getUser() != null ? booking.getUser().getFullName() : null)

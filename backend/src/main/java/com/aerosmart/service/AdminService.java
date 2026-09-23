@@ -5,27 +5,37 @@ import com.aerosmart.domain.BookingStatus;
 import com.aerosmart.domain.Flight;
 import com.aerosmart.domain.FlightStatus;
 import com.aerosmart.domain.Passenger;
+import com.aerosmart.domain.Role;
 import com.aerosmart.domain.Seat;
 import com.aerosmart.domain.SeatStatus;
+import com.aerosmart.domain.User;
 import com.aerosmart.dto.AdminDashboardStatsDto;
 import com.aerosmart.dto.BookingDto;
 import com.aerosmart.dto.PassengerDto;
 import com.aerosmart.dto.PassengerManifestDto;
 import com.aerosmart.dto.RevenuePointDto;
+import com.aerosmart.dto.auth.AdminCreateUserRequest;
+import com.aerosmart.dto.auth.AdminUpdateUserRequest;
+import com.aerosmart.dto.auth.UserDto;
+import com.aerosmart.exception.ApiException;
 import com.aerosmart.exception.ResourceNotFoundException;
 import com.aerosmart.repository.BookingRepository;
 import com.aerosmart.repository.FlightRepository;
 import com.aerosmart.repository.PassengerRepository;
 import com.aerosmart.repository.SeatRepository;
+import com.aerosmart.repository.UserRepository;
 import com.aerosmart.service.booking.DistributedSeatLockService;
 import com.aerosmart.service.booking.state.BookingStateManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -41,6 +51,8 @@ public class AdminService {
     private final FlightRepository flightRepository;
     private final SeatRepository seatRepository;
     private final PassengerRepository passengerRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
     private final BookingService bookingService;
     private final BookingStateManager stateManager;
     private final DistributedSeatLockService seatLockService;
@@ -180,5 +192,137 @@ public class AdminService {
         Booking saved = bookingRepository.save(booking);
         log.info("Admin force cancelled booking {}", saved.getBookingReference());
         return bookingService.toBookingDto(saved);
+    }
+
+    /* ---------------------------------------------------- User Account Management */
+
+    @Transactional(readOnly = true)
+    public List<UserDto> listUsers(String query, Role role, String provider) {
+        List<User> users = userRepository.findAll();
+
+        return users.stream()
+                .filter(u -> {
+                    if (role != null && u.getRole() != role) return false;
+                    if (provider != null && !provider.isBlank()) {
+                        String userProvider = u.getProvider() != null ? u.getProvider() : "LOCAL";
+                        if (!userProvider.equalsIgnoreCase(provider.trim())) return false;
+                    }
+                    if (query != null && !query.isBlank()) {
+                        String q = query.trim().toLowerCase();
+                        boolean matchName = u.getFullName() != null && u.getFullName().toLowerCase().contains(q);
+                        boolean matchEmail = u.getEmail() != null && u.getEmail().toLowerCase().contains(q);
+                        boolean matchPhone = u.getPhone() != null && u.getPhone().toLowerCase().contains(q);
+                        return matchName || matchEmail || matchPhone;
+                    }
+                    return true;
+                })
+                .sorted((a, b) -> b.getId().compareTo(a.getId()))
+                .map(UserDto::from)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public UserDto createUser(AdminCreateUserRequest req) {
+        String email = req.getEmail().trim().toLowerCase();
+        if (userRepository.existsByEmail(email)) {
+            throw new ApiException(HttpStatus.CONFLICT, "Email address is already in use.");
+        }
+
+        User user = User.builder()
+                .email(email)
+                .fullName(req.getFullName().trim())
+                .password(passwordEncoder.encode(req.getPassword()))
+                .role(req.getRole() != null ? req.getRole() : Role.ROLE_USER)
+                .phone(req.getPhone() != null ? req.getPhone().trim() : null)
+                .passportNo(req.getPassportNo() != null ? req.getPassportNo().trim() : null)
+                .avatarUrl(req.getAvatarUrl() != null ? req.getAvatarUrl().trim() : null)
+                .provider(req.getProvider() != null ? req.getProvider().trim().toUpperCase() : "LOCAL")
+                .active(true)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        User saved = userRepository.save(user);
+        log.info("Admin created new user id={}, role={}", saved.getId(), saved.getRole());
+        return UserDto.from(saved);
+    }
+
+    @Transactional
+    public UserDto updateUser(Long id, AdminUpdateUserRequest req) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
+
+        if (req.getFullName() != null && !req.getFullName().isBlank()) {
+            user.setFullName(req.getFullName().trim());
+        }
+        if (req.getEmail() != null && !req.getEmail().isBlank()) {
+            String newEmail = req.getEmail().trim().toLowerCase();
+            if (!newEmail.equals(user.getEmail()) && userRepository.existsByEmail(newEmail)) {
+                throw new ApiException(HttpStatus.CONFLICT, "Email is already taken by another account.");
+            }
+            user.setEmail(newEmail);
+        }
+        if (req.getPassword() != null && !req.getPassword().isBlank()) {
+            user.setPassword(passwordEncoder.encode(req.getPassword()));
+        }
+        if (req.getRole() != null) {
+            user.setRole(req.getRole());
+        }
+        if (req.getPhone() != null) {
+            user.setPhone(req.getPhone().trim());
+        }
+        if (req.getPassportNo() != null) {
+            user.setPassportNo(req.getPassportNo().trim());
+        }
+        if (req.getAvatarUrl() != null) {
+            user.setAvatarUrl(req.getAvatarUrl().trim());
+        }
+        if (req.getProvider() != null) {
+            user.setProvider(req.getProvider().trim().toUpperCase());
+        }
+        if (req.getActive() != null) {
+            user.setActive(req.getActive());
+        }
+
+        User updated = userRepository.save(user);
+        log.info("Admin updated user id={}", updated.getId());
+        return UserDto.from(updated);
+    }
+
+    @Transactional
+    public UserDto changeUserRole(Long id, Role role) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
+        user.setRole(role);
+        User saved = userRepository.save(user);
+        log.info("Admin changed role for user id={} to {}", id, role);
+        return UserDto.from(saved);
+    }
+
+    @Transactional
+    public UserDto toggleUserStatus(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
+        boolean currentStatus = user.getActive() == null || user.getActive();
+        user.setActive(!currentStatus);
+        User saved = userRepository.save(user);
+        log.info("Admin toggled active status for user id={} to {}", id, saved.getActive());
+        return UserDto.from(saved);
+    }
+
+    @Transactional
+    public void deleteUser(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
+        userRepository.delete(user);
+        log.info("Admin deleted user id={}", id);
+    }
+
+    @Transactional
+    public void resetUserPassword(Long id, String newPassword) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
+        user.setPassword(passwordEncoder.encode(newPassword.trim()));
+        userRepository.save(user);
+        log.info("Admin reset password for user id={}", id);
     }
 }

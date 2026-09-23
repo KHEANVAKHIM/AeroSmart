@@ -229,4 +229,59 @@ public class AdminController {
         countrySpotlightService.deleteCountry(id);
         return ResponseEntity.noContent().build();
     }
+
+    /* ---------------------------------------------------- User Account Management */
+
+    @GetMapping("/users")
+    public ResponseEntity<List<com.aerosmart.dto.auth.UserDto>> listUsers(
+            @RequestParam(required = false) String q,
+            @RequestParam(required = false) com.aerosmart.domain.Role role,
+            @RequestParam(required = false) String provider) {
+        List<com.aerosmart.dto.auth.UserDto> users = adminService.listUsers(q, role, provider);
+        return ResponseEntity.ok(users);
+    }
+
+    @PostMapping("/users")
+    public ResponseEntity<com.aerosmart.dto.auth.UserDto> createUser(
+            @Valid @RequestBody com.aerosmart.dto.auth.AdminCreateUserRequest req) {
+        com.aerosmart.dto.auth.UserDto created = adminService.createUser(req);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
+
+    @PutMapping("/users/{id}")
+    public ResponseEntity<com.aerosmart.dto.auth.UserDto> updateUser(
+            @PathVariable Long id,
+            @RequestBody com.aerosmart.dto.auth.AdminUpdateUserRequest req) {
+        com.aerosmart.dto.auth.UserDto updated = adminService.updateUser(id, req);
+        return ResponseEntity.ok(updated);
+    }
+
+    @PatchMapping("/users/{id}/role")
+    public ResponseEntity<com.aerosmart.dto.auth.UserDto> changeUserRole(
+            @PathVariable Long id,
+            @RequestParam com.aerosmart.domain.Role role) {
+        com.aerosmart.dto.auth.UserDto updated = adminService.changeUserRole(id, role);
+        return ResponseEntity.ok(updated);
+    }
+
+    @PatchMapping("/users/{id}/toggle")
+    public ResponseEntity<com.aerosmart.dto.auth.UserDto> toggleUserStatus(@PathVariable Long id) {
+        com.aerosmart.dto.auth.UserDto updated = adminService.toggleUserStatus(id);
+        return ResponseEntity.ok(updated);
+    }
+
+    @PostMapping("/users/{id}/reset-password")
+    public ResponseEntity<java.util.Map<String, String>> resetUserPassword(
+            @PathVariable Long id,
+            @RequestBody java.util.Map<String, String> body) {
+        String newPassword = body.getOrDefault("newPassword", "123456");
+        adminService.resetUserPassword(id, newPassword);
+        return ResponseEntity.ok(java.util.Map.of("message", "Password reset successfully."));
+    }
+
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+        adminService.deleteUser(id);
+        return ResponseEntity.noContent().build();
+    }
 }
