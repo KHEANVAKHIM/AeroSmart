@@ -68,11 +68,12 @@ public class FlightService {
                     log.debug("Returning cached flight search results for key {}", cacheKey);
                     // Type safe conversion
                     @SuppressWarnings("unchecked")
-                List<FlightDto> cachedList = (List<FlightDto>) cached;
-                return cachedList;
+                    List<FlightDto> cachedList = (List<FlightDto>) cached;
+                    return cachedList;
+                }
+            } catch (Exception e) {
+                log.debug("Redis cache miss or read error: {}", e.getMessage());
             }
-        } catch (Exception e) {
-            log.debug("Redis cache miss or read error: {}", e.getMessage());
         }
 
         List<Flight> flights = new ArrayList<>();
