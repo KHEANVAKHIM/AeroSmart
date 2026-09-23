@@ -208,11 +208,20 @@ export default function FlightHotelPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-navy-950 pb-16">
-      {/* 1. TOP SEARCH BAR (FlightSearchPage Compact Style) */}
-      <div className="border-b border-slate-200 bg-white py-4 shadow-sm dark:border-navy-800 dark:bg-navy-900">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-3 sm:p-4 shadow-sm dark:border-navy-700 dark:bg-navy-850">
+    <div className="min-h-screen bg-slate-100/70 dark:bg-navy-950 pb-16">
+      {/* 1. TOP ROYAL BLUE SEARCH HERO BANNER */}
+      <section className="relative bg-[#003580] pt-6 pb-10 px-4 sm:px-6 lg:px-8 text-white shadow-md">
+        <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.1)_1px,transparent_1px)] [background-size:20px_20px] opacity-25 pointer-events-none" />
+        <div className="relative mx-auto max-w-7xl space-y-3">
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold text-sky-200 backdrop-blur-md">
+            <Globe className="h-3.5 w-3.5 text-amber-300" />
+            <span>AeroSmart Packages · Gói Combo Vé Máy Bay + Khách Sạn 5 Sao</span>
+          </div>
+          <h1 className="text-xl sm:text-3xl font-black text-white">
+            {isVi ? 'Gói Combo Tiết Kiệm: Vé Máy Bay + Khách Sạn' : 'Save with Flight + Hotel Packages'}
+          </h1>
+
+          <div className="rounded-2xl border border-white/20 bg-white p-3 sm:p-4 shadow-2xl dark:bg-navy-900 text-slate-800 dark:text-white">
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <div>
                 <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
@@ -287,7 +296,7 @@ export default function FlightHotelPage() {
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* 2. MAIN 12-COLUMN LAYOUT (SIDEBAR FILTERS + RESULTS FEED) */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-8">

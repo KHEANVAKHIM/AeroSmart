@@ -105,10 +105,11 @@ export default function FlightSearchPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-16">
-      {/* Top Search Bar */}
-      <div className="border-b border-slate-200 bg-white py-4 shadow-sm">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-slate-100/70 dark:bg-navy-950 pb-16">
+      {/* Top Royal Blue Search Banner */}
+      <div className="relative bg-[#003580] pt-6 pb-10 shadow-md">
+        <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.1)_1px,transparent_1px)] [background-size:20px_20px] opacity-25 pointer-events-none" />
+        <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <FlightSearchHero initialCompact={true} />
         </div>
       </div>

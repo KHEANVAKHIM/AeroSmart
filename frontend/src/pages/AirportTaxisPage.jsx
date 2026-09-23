@@ -129,11 +129,20 @@ export default function AirportTaxisPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-navy-950 pb-16">
-      {/* 1. TOP SEARCH BAR (FlightSearchPage Compact Style) */}
-      <div className="border-b border-slate-200 bg-white py-4 shadow-sm dark:border-navy-800 dark:bg-navy-900">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-3 sm:p-4 shadow-sm dark:border-navy-700 dark:bg-navy-850">
+    <div className="min-h-screen bg-slate-100/70 dark:bg-navy-950 pb-16">
+      {/* 1. TOP ROYAL BLUE SEARCH HERO BANNER */}
+      <section className="relative bg-[#003580] pt-6 pb-10 px-4 sm:px-6 lg:px-8 text-white shadow-md">
+        <div className="absolute inset-0 bg-[radial-gradient(rgba(255,255,255,0.1)_1px,transparent_1px)] [background-size:20px_20px] opacity-25 pointer-events-none" />
+        <div className="relative mx-auto max-w-7xl space-y-3">
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold text-sky-200 backdrop-blur-md">
+            <Car className="h-3.5 w-3.5 text-amber-300" />
+            <span>AeroSmart Taxis · Đón Tiễn Sân Bay Trọn Gói Đúng Giờ</span>
+          </div>
+          <h1 className="text-xl sm:text-3xl font-black text-white">
+            {isVi ? 'Taxi Sân Bay Trọn Gói - Giá Cố Định Không Phát Sinh' : 'Book Reliable Airport Taxi Transfers'}
+          </h1>
+
+          <div className="rounded-2xl border border-white/20 bg-white p-3 sm:p-4 shadow-2xl dark:bg-navy-900 text-slate-800 dark:text-white">
             {/* Direction Tabs */}
             <div className="flex items-center gap-2 mb-3">
               <button
@@ -142,7 +151,7 @@ export default function AirportTaxisPage() {
                 className={`rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all ${
                   tripDirection === 'FROM_AIRPORT'
                     ? 'bg-[#003580] text-white shadow-md dark:bg-sky-500 dark:text-navy-950'
-                    : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 dark:bg-navy-800 dark:text-slate-300 dark:border-navy-700'
+                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200 dark:bg-navy-800 dark:text-slate-300 dark:border-navy-700'
                 }`}
               >
                 {isVi ? 'Đón từ Sân bay' : 'From Airport'}
@@ -153,7 +162,7 @@ export default function AirportTaxisPage() {
                 className={`rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all ${
                   tripDirection === 'TO_AIRPORT'
                     ? 'bg-[#003580] text-white shadow-md dark:bg-sky-500 dark:text-navy-950'
-                    : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 dark:bg-navy-800 dark:text-slate-300 dark:border-navy-700'
+                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200 dark:bg-navy-800 dark:text-slate-300 dark:border-navy-700'
                 }`}
               >
                 {isVi ? 'Đưa ra Sân bay' : 'To Airport'}
@@ -231,7 +240,7 @@ export default function AirportTaxisPage() {
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
       {/* 2. MAIN 12-COLUMN LAYOUT (SIDEBAR FILTERS + RESULTS FEED) */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-8">
