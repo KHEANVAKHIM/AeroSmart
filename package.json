@@ -1,0 +1,14 @@
+{
+  "name": "aerosmart-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AeroSmart - Airline Flight Booking & Management System",
+  "scripts": {
+    "build": "npm --prefix frontend run build",
+    "build:frontend": "npm --prefix frontend run build",
+    "frontend": "npm --prefix frontend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "backend": "cd backend && .\\mvnw.cmd spring-boot:run",
+    "start": "run.bat"
+  }
+}
