@@ -4,8 +4,10 @@ import com.aerosmart.exception.ApiException;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -29,7 +31,7 @@ public class DistributedSeatLockService {
 
     private final Map<String, Instant> inMemoryLockRegistry = new ConcurrentHashMap<>();
 
-    public DistributedSeatLockService(RedissonClient redissonClient) {
+    public DistributedSeatLockService(@Autowired(required = false) @Nullable RedissonClient redissonClient) {
         this.redissonClient = redissonClient;
     }
 
@@ -43,6 +45,9 @@ public class DistributedSeatLockService {
      */
     public boolean acquireHold(Long flightId, String seatNumber) {
         String key = getLockKey(flightId, seatNumber);
+        if (redissonClient == null) {
+            return acquireInMemoryFallback(key, seatNumber);
+        }
         try {
             RLock lock = redissonClient.getLock(key);
             boolean acquired = lock.tryLock(0, holdDurationMinutes, TimeUnit.MINUTES);
@@ -66,6 +71,9 @@ public class DistributedSeatLockService {
     public void releaseHold(Long flightId, String seatNumber) {
         String key = getLockKey(flightId, seatNumber);
         inMemoryLockRegistry.remove(key);
+        if (redissonClient == null) {
+            return;
+        }
         try {
             RLock lock = redissonClient.getLock(key);
             if (lock.isHeldByCurrentThread() || lock.isLocked()) {

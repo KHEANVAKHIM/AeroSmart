@@ -39,25 +39,35 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class FlightService {
 
     private final FlightRepository flightRepository;
     private final AirportRepository airportRepository;
     private final SeatRepository seatRepository;
-    private final RedisTemplate<String, Object> redisTemplate;
+
+    @org.springframework.beans.factory.annotation.Autowired(required = false)
+    private RedisTemplate<String, Object> redisTemplate;
+
+    public FlightService(FlightRepository flightRepository,
+                         AirportRepository airportRepository,
+                         SeatRepository seatRepository) {
+        this.flightRepository = flightRepository;
+        this.airportRepository = airportRepository;
+        this.seatRepository = seatRepository;
+    }
 
     @Transactional
     public List<FlightDto> searchFlights(FlightSearchCriteria criteria) {
         String cacheKey = "flight:search:" + criteria.getOrigin() + ":" + criteria.getDestination() + ":"
                 + criteria.getDepartureDate() + ":" + criteria.getAirline() + ":" + criteria.getSortBy();
 
-        try {
-            Object cached = redisTemplate.opsForValue().get(cacheKey);
-            if (cached instanceof List<?>) {
-                log.debug("Returning cached flight search results for key {}", cacheKey);
-                // Type safe conversion
-                @SuppressWarnings("unchecked")
+        if (redisTemplate != null) {
+            try {
+                Object cached = redisTemplate.opsForValue().get(cacheKey);
+                if (cached instanceof List<?>) {
+                    log.debug("Returning cached flight search results for key {}", cacheKey);
+                    // Type safe conversion
+                    @SuppressWarnings("unchecked")
                 List<FlightDto> cachedList = (List<FlightDto>) cached;
                 return cachedList;
             }
@@ -130,10 +140,12 @@ public class FlightService {
             results.sort(Comparator.comparing(FlightDto::getDepartureTime));
         }
 
-        try {
-            redisTemplate.opsForValue().set(cacheKey, results, 60, TimeUnit.SECONDS);
-        } catch (Exception e) {
-            log.debug("Unable to cache flight search in Redis: {}", e.getMessage());
+        if (redisTemplate != null) {
+            try {
+                redisTemplate.opsForValue().set(cacheKey, results, 60, TimeUnit.SECONDS);
+            } catch (Exception e) {
+                log.debug("Unable to cache flight search in Redis: {}", e.getMessage());
+            }
         }
 
         return results;
