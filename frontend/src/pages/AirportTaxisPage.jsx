@@ -15,7 +15,10 @@ import {
   Navigation,
   Phone,
   User,
-  Info
+  Info,
+  Filter,
+  ArrowUpDown,
+  RotateCcw
 } from 'lucide-react'
 import { useCurrency } from '../context/CurrencyContext'
 import { useLanguage } from '../context/LanguageContext'
@@ -24,32 +27,38 @@ const AIRPORT_TAXI_FLEETS = [
   {
     id: 'taxi-standard-4',
     name: 'Standard Taxi 4 Chỗ (Toyota Vios / Hyundai Accent)',
-    category: 'Tiêu chuẩn 4 chỗ',
+    category: 'SEDAN',
+    categoryLabel: 'Tiêu chuẩn 4 chỗ',
     seats: 4,
     bags: 2,
     baseFare: 280000,
+    originalFare: 350000,
     image: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&auto=format&fit=crop&q=80',
     tags: ['Tài xế đón tại sảnh đến', 'Miễn phí chờ 45 phút', 'Đã gồm phí cầu đường']
   },
   {
     id: 'taxi-premium-suv',
     name: 'Premium SUV 7 Chỗ (Toyota Fortuner / Mitsubishi Xpander)',
-    category: 'Gia đình & Nhóm 7 chỗ',
+    category: 'SUV',
+    categoryLabel: 'Gia đình & Nhóm 7 chỗ',
     seats: 7,
     bags: 4,
     baseFare: 420000,
+    originalFare: 520000,
     image: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&auto=format&fit=crop&q=80',
-    tags: ['Khoang hành lý rộng rãi', 'Miễn phí chờ 60 phút khi máy bay hạ cánh', 'Nước suối & khăn lạnh']
+    tags: ['Khoang hành lý rộng rãi', 'Miễn phí chờ 60 phút', 'Nước suối & khăn lạnh']
   },
   {
     id: 'taxi-limo-vip',
     name: 'VIP DCar President Limousine 9 Chỗ',
-    category: 'Thương gia VIP 9 chỗ',
+    category: 'LIMOUSINE',
+    categoryLabel: 'Thương gia VIP 9 chỗ',
     seats: 9,
     bags: 7,
     baseFare: 850000,
+    originalFare: 1100000,
     image: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=800&auto=format&fit=crop&q=80',
-    tags: ['Ghế massage bọc da cao cấp', 'Biển đón tên tại cửa ga ra', 'Đẳng cấp đón tiếp đối tác']
+    tags: ['Ghế massage bọc da cao cấp', 'Biển đón tên tại cửa ga ra', 'Đẳng cấp đối tác']
   }
 ]
 
@@ -60,14 +69,40 @@ export default function AirportTaxisPage() {
   const isVi = language?.code === 'vi'
   const isKm = language?.code === 'km'
 
-  const [tripDirection, setTripDirection] = useState('FROM_AIRPORT') // FROM_AIRPORT or TO_AIRPORT
+  // Search parameters
+  const [tripDirection, setTripDirection] = useState('FROM_AIRPORT')
   const [airport, setAirport] = useState('HAN')
   const [destinationAddress, setDestinationAddress] = useState('Quận Hoàn Kiếm, Hà Nội')
   const [flightNumber, setFlightNumber] = useState('VN216')
   const [pickupDateTime, setPickupDateTime] = useState('2026-10-15T14:30')
+
+  // Sidebar Filters
+  const [selectedCategories, setSelectedCategories] = useState([])
+  const [selectedSeats, setSelectedSeats] = useState([])
+  const [sortBy, setSortBy] = useState('PRICE_ASC')
+
+  // Modal
   const [selectedTaxi, setSelectedTaxi] = useState(null)
   const [passengerInfo, setPassengerInfo] = useState({ name: '', phone: '' })
   const [bookingSuccess, setBookingSuccess] = useState(null)
+
+  const resetFilters = () => {
+    setSelectedCategories([])
+    setSelectedSeats([])
+    setSortBy('PRICE_ASC')
+  }
+
+  const filteredTaxis = useMemo(() => {
+    return AIRPORT_TAXI_FLEETS.filter((taxi) => {
+      if (selectedCategories.length > 0 && !selectedCategories.includes(taxi.category)) return false
+      if (selectedSeats.length > 0 && !selectedSeats.includes(taxi.seats)) return false
+      return true
+    }).sort((a, b) => {
+      if (sortBy === 'PRICE_ASC') return a.baseFare - b.baseFare
+      if (sortBy === 'PRICE_DESC') return b.baseFare - a.baseFare
+      return a.seats - b.seats
+    })
+  }, [selectedCategories, selectedSeats, sortBy])
 
   const handleOpenBooking = (taxi) => {
     setSelectedTaxi(taxi)
@@ -94,55 +129,40 @@ export default function AirportTaxisPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-navy-950 pb-20">
-      {/* 1. HERO HEADER */}
-      <section className="relative bg-[#003580] pt-8 pb-16 px-4 sm:px-6 lg:px-8 text-white">
-        <div className="mx-auto max-w-6xl space-y-4">
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-1 text-xs font-semibold text-amber-300 backdrop-blur-md">
-            <Car className="h-3.5 w-3.5" />
-            <span>AeroSmart Express · Dịch Vụ Taxi & Limousine Đưa Đón Sân Bay Trọn Gói</span>
-          </div>
-
-          <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white">
-            {isVi ? 'Đặt Taxi Sân Bay Giá Cố Định - Không Lo Phụ Phí' : 'Airport Taxi & Chauffeur Transfers at Fixed Prices'}
-          </h1>
-          <p className="text-xs sm:text-sm text-sky-100 max-w-2xl font-medium">
-            {isVi
-              ? 'Tài xế theo dõi chuyến bay thực tế, đón đúng giờ tại sảnh đến. Miễn phí chờ 60 phút nếu máy bay hạ cánh trễ. Giá trọn gói đã gồm phí cầu đường và vé sân bay.'
-              : 'Flight tracking included. Your driver waits at arrivals even if your flight is delayed, with zero hidden fees.'}
-          </p>
-
-          {/* Quick Search Form */}
-          <div className="rounded-2xl border border-white/20 bg-white p-4 shadow-2xl dark:bg-navy-900 text-slate-800 dark:text-white">
+    <div className="min-h-screen bg-slate-50 dark:bg-navy-950 pb-16">
+      {/* 1. TOP SEARCH BAR (FlightSearchPage Compact Style) */}
+      <div className="border-b border-slate-200 bg-white py-4 shadow-sm dark:border-navy-800 dark:bg-navy-900">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-3 sm:p-4 shadow-sm dark:border-navy-700 dark:bg-navy-850">
             {/* Direction Tabs */}
-            <div className="flex items-center gap-2 mb-4">
+            <div className="flex items-center gap-2 mb-3">
               <button
                 type="button"
                 onClick={() => setTripDirection('FROM_AIRPORT')}
-                className={`rounded-xl px-4 py-2 text-xs font-bold transition-all ${
+                className={`rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all ${
                   tripDirection === 'FROM_AIRPORT'
                     ? 'bg-[#003580] text-white shadow-md dark:bg-sky-500 dark:text-navy-950'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-navy-800 dark:text-slate-300'
+                    : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 dark:bg-navy-800 dark:text-slate-300 dark:border-navy-700'
                 }`}
               >
-                {isVi ? 'Đón từ Sân bay về Khách sạn / Nhà' : 'From Airport to Hotel / City'}
+                {isVi ? 'Đón từ Sân bay' : 'From Airport'}
               </button>
               <button
                 type="button"
                 onClick={() => setTripDirection('TO_AIRPORT')}
-                className={`rounded-xl px-4 py-2 text-xs font-bold transition-all ${
+                className={`rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all ${
                   tripDirection === 'TO_AIRPORT'
                     ? 'bg-[#003580] text-white shadow-md dark:bg-sky-500 dark:text-navy-950'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-navy-800 dark:text-slate-300'
+                    : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200 dark:bg-navy-800 dark:text-slate-300 dark:border-navy-700'
                 }`}
               >
-                {isVi ? 'Đưa từ Nhà / Khách sạn ra Sân bay' : 'From City / Hotel to Airport'}
+                {isVi ? 'Đưa ra Sân bay' : 'To Airport'}
               </button>
             </div>
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 mb-1">
+                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
                   {isVi ? 'Sân bay' : 'Airport'}
                 </label>
                 <div className="relative flex items-center">
@@ -150,7 +170,7 @@ export default function AirportTaxisPage() {
                   <select
                     value={airport}
                     onChange={(e) => setAirport(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
+                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
                   >
                     <option value="HAN">Nội Bài (Hà Nội - HAN)</option>
                     <option value="SGN">Tân Sơn Nhất (TP.HCM - SGN)</option>
@@ -163,8 +183,8 @@ export default function AirportTaxisPage() {
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 mb-1">
-                  {isVi ? 'Địa chỉ khách sạn / Điểm đến' : 'Hotel / Drop-off Address'}
+                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
+                  {isVi ? 'Địa chỉ khách sạn / Điểm đến' : 'Hotel / Address'}
                 </label>
                 <div className="relative flex items-center">
                   <MapPin className="absolute left-3 h-4 w-4 text-[#003580] dark:text-sky-400" />
@@ -172,15 +192,15 @@ export default function AirportTaxisPage() {
                     type="text"
                     value={destinationAddress}
                     onChange={(e) => setDestinationAddress(e.target.value)}
-                    placeholder={isVi ? 'Số nhà, tên đường, khách sạn...' : 'Hotel name or street...'}
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
+                    placeholder={isVi ? 'Số nhà, tên đường...' : 'Hotel or street...'}
+                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 mb-1">
-                  {isVi ? 'Mã chuyến bay (để theo dõi)' : 'Flight Number'}
+                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
+                  {isVi ? 'Mã chuyến bay theo dõi' : 'Flight Number'}
                 </label>
                 <div className="relative flex items-center">
                   <Navigation className="absolute left-3 h-4 w-4 text-[#003580] dark:text-sky-400" />
@@ -189,14 +209,14 @@ export default function AirportTaxisPage() {
                     value={flightNumber}
                     onChange={(e) => setFlightNumber(e.target.value.toUpperCase())}
                     placeholder="VN216, VJ135..."
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white uppercase"
+                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white uppercase"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 mb-1">
-                  {isVi ? 'Ngày & Giờ đón' : 'Pickup Date & Time'}
+                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
+                  {isVi ? 'Ngày & Giờ đón' : 'Pickup Time'}
                 </label>
                 <div className="relative flex items-center">
                   <Clock className="absolute left-3 h-4 w-4 text-[#003580] dark:text-sky-400" />
@@ -204,92 +224,209 @@ export default function AirportTaxisPage() {
                     type="datetime-local"
                     value={pickupDateTime}
                     onChange={(e) => setPickupDateTime(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
+                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
                   />
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* 2. FLEETS LIST */}
-      <section className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 mt-8">
-        <div className="mb-6">
-          <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
-            {isVi ? 'Chọn Loại Xe Đưa Đón Phù Hợp' : 'Select Vehicle Category'}
-          </h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-            {isVi ? 'Giá cố định trọn gói không phụ thuộc tình trạng giao thông' : 'Guaranteed all-inclusive fixed rates'}
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {AIRPORT_TAXI_FLEETS.map((taxi) => (
-            <div
-              key={taxi.id}
-              className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm hover:shadow-xl transition-all duration-300 dark:border-navy-800 dark:bg-navy-900 flex flex-col justify-between"
-            >
-              <div>
-                <div className="relative h-48 w-full overflow-hidden bg-slate-100 dark:bg-navy-800">
-                  <img
-                    src={taxi.image}
-                    alt={taxi.name}
-                    className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute top-3 left-3 rounded-full bg-[#003580]/90 backdrop-blur-md px-2.5 py-1 text-[10px] font-bold text-white">
-                    {taxi.category}
-                  </div>
+      {/* 2. MAIN 12-COLUMN LAYOUT (SIDEBAR FILTERS + RESULTS FEED) */}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          
+          {/* FILTERS SIDEBAR (3 Cols) */}
+          <aside className="lg:col-span-3 space-y-6">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-navy-800 dark:bg-navy-900">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-navy-800">
+                <div className="flex items-center gap-2">
+                  <Filter className="h-4 w-4 text-[#003580] dark:text-sky-400" />
+                  <span className="font-bold text-sm text-slate-900 dark:text-white">
+                    {isVi ? 'Bộ lọc Loại xe' : 'Vehicle Filters'}
+                  </span>
                 </div>
-
-                <div className="p-5 space-y-3">
-                  <h3 className="text-base font-black text-slate-900 dark:text-white group-hover:text-[#003580] dark:group-hover:text-sky-400 transition-colors">
-                    {taxi.name}
-                  </h3>
-
-                  <div className="flex items-center gap-4 text-xs text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-navy-800 p-2.5 rounded-xl">
-                    <div className="flex items-center gap-1 font-medium">
-                      <Users className="h-3.5 w-3.5 text-slate-400" />
-                      <span>{taxi.seats} hành khách</span>
-                    </div>
-                    <div className="flex items-center gap-1 font-medium">
-                      <Briefcase className="h-3.5 w-3.5 text-slate-400" />
-                      <span>{taxi.bags} kiện vali</span>
-                    </div>
-                  </div>
-
-                  <div className="space-y-1 pt-1">
-                    {taxi.tags.map((t, idx) => (
-                      <div key={idx} className="flex items-center gap-1.5 text-[11px] text-slate-600 dark:text-slate-300">
-                        <Check className="h-3 w-3 text-emerald-500 shrink-0" />
-                        <span>{t}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-5 pt-0 border-t border-slate-100 dark:border-navy-800 flex items-center justify-between mt-4">
-                <div>
-                  <div className="text-xl font-black text-[#003580] dark:text-sky-400">
-                    {formatPrice(taxi.baseFare)}
-                  </div>
-                  <span className="text-[10px] text-slate-500 dark:text-slate-400">/ chuyến (Trọn gói)</span>
-                </div>
-
                 <button
                   type="button"
-                  onClick={() => handleOpenBooking(taxi)}
-                  className="flex items-center gap-1.5 rounded-2xl bg-[#003580] px-4 py-2.5 text-xs font-bold text-white shadow-md hover:bg-[#002660] dark:bg-sky-500 dark:text-navy-950 dark:hover:bg-sky-400 active:scale-95 transition-all"
+                  onClick={resetFilters}
+                  className="flex items-center gap-1 text-xs font-semibold text-[#006ce4] hover:underline dark:text-sky-400"
                 >
-                  <Sparkles className="h-3.5 w-3.5" />
-                  <span>{isVi ? 'Đặt Xe Ngay' : 'Book Taxi'}</span>
+                  <RotateCcw className="h-3 w-3" />
+                  <span>{isVi ? 'Đặt lại' : 'Reset'}</span>
                 </button>
               </div>
+
+              {/* Class */}
+              <div className="py-4 border-b border-slate-100 dark:border-navy-800 space-y-2.5">
+                <h4 className="font-bold text-xs text-slate-900 dark:text-white uppercase tracking-wider">
+                  {isVi ? 'Phân khúc xe đưa đón' : 'Vehicle Class'}
+                </h4>
+                {[
+                  { id: 'SEDAN', label: isVi ? 'Tiêu chuẩn 4 chỗ' : 'Standard 4-seat' },
+                  { id: 'SUV', label: isVi ? 'SUV gia đình 7 chỗ' : 'SUV 7-seat' },
+                  { id: 'LIMOUSINE', label: isVi ? 'VIP Limousine 9 chỗ' : 'VIP Limousine 9-seat' }
+                ].map((c) => {
+                  const isChecked = selectedCategories.includes(c.id)
+                  return (
+                    <label key={c.id} className="flex items-center gap-2.5 text-xs text-slate-800 dark:text-slate-200 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={(e) => {
+                          if (e.target.checked) setSelectedCategories([...selectedCategories, c.id])
+                          else setSelectedCategories(selectedCategories.filter((cat) => cat !== c.id))
+                        }}
+                        className="rounded text-[#006ce4] focus:ring-[#006ce4]"
+                      />
+                      <span className="font-medium">{c.label}</span>
+                    </label>
+                  )
+                })}
+              </div>
+
+              {/* Guaranteed benefits */}
+              <div className="pt-4 space-y-2.5">
+                <h4 className="font-bold text-xs text-slate-900 dark:text-white uppercase tracking-wider">
+                  {isVi ? 'Cam kết AeroSmart' : 'Guarantees'}
+                </h4>
+                <div className="space-y-2 text-xs text-slate-600 dark:text-slate-300">
+                  <div className="flex items-start gap-2">
+                    <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0 mt-0.5" />
+                    <span>Giá trọn gói cố định (Đã gồm cầu đường & đỗ xe)</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0 mt-0.5" />
+                    <span>Tài xế chờ miễn phí 60 phút khi máy bay hạ cánh</span>
+                  </div>
+                  <div className="flex items-start gap-2">
+                    <Check className="h-3.5 w-3.5 text-emerald-500 shrink-0 mt-0.5" />
+                    <span>Biển đón tên tại cửa ga đến sân bay</span>
+                  </div>
+                </div>
+              </div>
             </div>
-          ))}
+          </aside>
+
+          {/* RESULTS FEED (9 Cols) */}
+          <section className="lg:col-span-9 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm dark:border-navy-800 dark:bg-navy-900">
+              <p className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
+                {isVi ? `Tìm thấy ${filteredTaxis.length} lựa chọn xe đưa đón sân bay ${airport}` : `Found ${filteredTaxis.length} transfer vehicles`}
+              </p>
+
+              <div className="flex items-center gap-2">
+                <ArrowUpDown className="h-4 w-4 text-slate-400" />
+                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                  {isVi ? 'Sắp xếp:' : 'Sort:'}
+                </span>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
+                >
+                  <option value="PRICE_ASC">{isVi ? 'Giá trọn gói thấp nhất' : 'Price: Low to High'}</option>
+                  <option value="PRICE_DESC">{isVi ? 'Giá cao nhất' : 'Price: High to Low'}</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Taxi Cards */}
+            {filteredTaxis.length === 0 ? (
+              <div className="rounded-3xl border border-slate-200 bg-white p-12 text-center dark:border-navy-800 dark:bg-navy-900">
+                <Car className="mx-auto h-12 w-12 text-slate-300 mb-3" />
+                <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                  {isVi ? 'Không tìm thấy dòng xe phù hợp' : 'No vehicles match your filters'}
+                </h3>
+                <button
+                  type="button"
+                  onClick={resetFilters}
+                  className="mt-4 rounded-xl bg-[#003580] px-4 py-2 text-xs font-bold text-white dark:bg-sky-500 dark:text-navy-950"
+                >
+                  {isVi ? 'Xem tất cả xe' : 'Reset Filters'}
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {filteredTaxis.map((taxi) => (
+                  <div
+                    key={taxi.id}
+                    className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm hover:shadow-lg transition-all duration-300 dark:border-navy-800 dark:bg-navy-900"
+                  >
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-0">
+                      {/* Photo */}
+                      <div className="relative md:col-span-4 h-52 md:h-auto overflow-hidden bg-slate-100 dark:bg-navy-800">
+                        <img
+                          src={taxi.image}
+                          alt={taxi.name}
+                          className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute top-3 left-3 rounded-full bg-[#003580]/90 backdrop-blur-md px-2.5 py-1 text-[10px] font-bold text-white">
+                          {taxi.categoryLabel}
+                        </div>
+                      </div>
+
+                      {/* Middle */}
+                      <div className="md:col-span-5 p-5 flex flex-col justify-between border-b md:border-b-0 md:border-r border-slate-100 dark:border-navy-800">
+                        <div className="space-y-2">
+                          <span className="text-[11px] font-bold text-[#003580] dark:text-sky-400 uppercase tracking-wider block">
+                            TAXI ĐƯA ĐÓN SÂN BAY
+                          </span>
+                          <h3 className="text-base font-black text-slate-900 group-hover:text-[#003580] dark:text-white dark:group-hover:text-sky-400 transition-colors">
+                            {taxi.name}
+                          </h3>
+
+                          <div className="flex items-center gap-4 text-xs text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-navy-800 p-2.5 rounded-xl">
+                            <div className="flex items-center gap-1 font-medium">
+                              <Users className="h-3.5 w-3.5 text-slate-400" />
+                              <span>{taxi.seats} hành khách</span>
+                            </div>
+                            <div className="flex items-center gap-1 font-medium">
+                              <Briefcase className="h-3.5 w-3.5 text-slate-400" />
+                              <span>{taxi.bags} kiện vali</span>
+                            </div>
+                          </div>
+
+                          <div className="space-y-1 pt-1">
+                            {taxi.tags.map((t, idx) => (
+                              <div key={idx} className="flex items-center gap-1.5 text-[11px] text-slate-600 dark:text-slate-300">
+                                <Check className="h-3 w-3 text-emerald-500 shrink-0" />
+                                <span>{t}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Right Price & CTA */}
+                      <div className="md:col-span-3 p-5 flex flex-col justify-between bg-slate-50/50 dark:bg-navy-900/50">
+                        <div className="space-y-2 text-right">
+                          <span className="text-[11px] text-slate-400 line-through block">
+                            {formatPrice(taxi.originalFare)}
+                          </span>
+                          <div className="text-xl font-black text-[#003580] dark:text-sky-400">
+                            {formatPrice(taxi.baseFare)}
+                          </div>
+                          <span className="text-[10px] text-slate-500 block">/ chuyến (Trọn gói cố định)</span>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => handleOpenBooking(taxi)}
+                          className="mt-4 w-full flex items-center justify-center gap-1.5 rounded-xl bg-[#003580] py-2.5 text-xs font-bold text-white shadow-md hover:bg-[#002660] dark:bg-sky-500 dark:text-navy-950 dark:hover:bg-sky-400 active:scale-95 transition-all"
+                        >
+                          <Sparkles className="h-3.5 w-3.5" />
+                          <span>{isVi ? 'Đặt Xe Ngay' : 'Book Taxi'}</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
         </div>
-      </section>
+      </div>
 
       {/* 3. BOOKING MODAL */}
       {selectedTaxi && (

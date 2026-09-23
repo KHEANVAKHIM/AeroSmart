@@ -14,7 +14,10 @@ import {
   CheckCircle2,
   Phone,
   User,
-  Key
+  Key,
+  Filter,
+  ArrowUpDown,
+  RotateCcw
 } from 'lucide-react'
 import { useCurrency } from '../context/CurrencyContext'
 import { useLanguage } from '../context/LanguageContext'
@@ -23,7 +26,8 @@ const CAR_FLEET = [
   {
     id: 'car-sedan-camry',
     name: 'Toyota Camry 2.5Q Premium',
-    category: 'Sedan 4-5 Chỗ Hạng Sang',
+    category: 'SEDAN',
+    categoryLabel: 'Sedan 4-5 Chỗ Hạng Sang',
     seats: 5,
     bags: 3,
     transmission: 'Tự động (Auto)',
@@ -37,7 +41,8 @@ const CAR_FLEET = [
   {
     id: 'car-suv-everest',
     name: 'Ford Everest Titanium 4x4',
-    category: 'SUV 7 Chỗ Gầm Cao',
+    category: 'SUV',
+    categoryLabel: 'SUV 7 Chỗ Gầm Cao',
     seats: 7,
     bags: 5,
     transmission: 'Tự động 10 cấp',
@@ -51,7 +56,8 @@ const CAR_FLEET = [
   {
     id: 'car-limo-dcar',
     name: 'DCar President VIP Limousine',
-    category: 'Limousine Thương Gia 9 Chỗ',
+    category: 'LIMOUSINE',
+    categoryLabel: 'Limousine Thương Gia 9 Chỗ',
     seats: 9,
     bags: 8,
     transmission: 'Tự động + Có tài xế riêng',
@@ -65,7 +71,8 @@ const CAR_FLEET = [
   {
     id: 'car-merc-glc',
     name: 'Mercedes-Benz GLC 300 4MATIC',
-    category: 'Luxury SUV 5 Chỗ',
+    category: 'SUV',
+    categoryLabel: 'Luxury SUV 5 Chỗ',
     seats: 5,
     bags: 4,
     transmission: 'Tự động 9G-TRONIC',
@@ -79,7 +86,8 @@ const CAR_FLEET = [
   {
     id: 'car-van-solati',
     name: 'Hyundai Solati VIP 16 Chỗ',
-    category: 'Minivan Du Lịch Đoàn',
+    category: 'VAN',
+    categoryLabel: 'Minivan Du Lịch Đoàn',
     seats: 16,
     bags: 12,
     transmission: 'Số sàn / Tự động (Có tài xế)',
@@ -99,20 +107,41 @@ export default function CarRentalPage() {
   const isVi = language?.code === 'vi'
   const isKm = language?.code === 'km'
 
+  // Search parameters
   const [pickupCity, setPickupCity] = useState('HAN_AIRPORT')
   const [pickupDate, setPickupDate] = useState('2026-10-15')
   const [returnDate, setReturnDate] = useState('2026-10-18')
-  const [rentalFilter, setRentalFilter] = useState('ALL')
+
+  // Sidebar Filters
+  const [selectedDriverTypes, setSelectedDriverTypes] = useState([])
+  const [selectedCategories, setSelectedCategories] = useState([])
+  const [selectedSeats, setSelectedSeats] = useState([])
+  const [sortBy, setSortBy] = useState('PRICE_ASC')
+
+  // Modal
   const [selectedCar, setSelectedCar] = useState(null)
   const [bookingSuccess, setBookingSuccess] = useState(null)
   const [renterInfo, setRenterInfo] = useState({ name: '', phone: '', driverOption: 'SELF_DRIVE' })
 
+  const resetFilters = () => {
+    setSelectedDriverTypes([])
+    setSelectedCategories([])
+    setSelectedSeats([])
+    setSortBy('PRICE_ASC')
+  }
+
   const filteredCars = useMemo(() => {
     return CAR_FLEET.filter((car) => {
-      if (rentalFilter !== 'ALL' && car.type !== rentalFilter) return false
+      if (selectedDriverTypes.length > 0 && !selectedDriverTypes.includes(car.type)) return false
+      if (selectedCategories.length > 0 && !selectedCategories.includes(car.category)) return false
+      if (selectedSeats.length > 0 && !selectedSeats.includes(car.seats)) return false
       return true
+    }).sort((a, b) => {
+      if (sortBy === 'PRICE_ASC') return a.pricePerDay - b.pricePerDay
+      if (sortBy === 'PRICE_DESC') return b.pricePerDay - a.pricePerDay
+      return a.seats - b.seats
     })
-  }, [rentalFilter])
+  }, [selectedDriverTypes, selectedCategories, selectedSeats, sortBy])
 
   const handleOpenBooking = (car) => {
     setSelectedCar(car)
@@ -132,36 +161,21 @@ export default function CarRentalPage() {
       carName: selectedCar.name,
       pickupDate,
       returnDate,
-      totalPrice: selectedCar.pricePerDay * 3, // 3 days
+      totalPrice: selectedCar.pricePerDay * 3,
       renterName: renterInfo.name,
       phone: renterInfo.phone
     })
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-navy-950 pb-20">
-      {/* 1. HERO HEADER */}
-      <section className="relative bg-[#003580] pt-8 pb-16 px-4 sm:px-6 lg:px-8 text-white">
-        <div className="mx-auto max-w-6xl space-y-4">
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-1 text-xs font-semibold text-sky-200 backdrop-blur-md">
-            <Car className="h-3.5 w-3.5 text-amber-300" />
-            <span>AeroSmart Drive · Dịch Vụ Thuê Xe Tự Lái & Có Tài Xế Cao Cấp</span>
-          </div>
-
-          <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white">
-            {isVi ? 'Thuê Xe Du Lịch & Đưa Đón Sân Bay Giá Tốt Nhất' : 'Premium Car Rentals for Any Trip'}
-          </h1>
-          <p className="text-xs sm:text-sm text-sky-100 max-w-2xl font-medium">
-            {isVi
-              ? 'Đa dạng các dòng xe đời mới từ Sedan, SUV đến Limousine VIP. Thủ tục đơn giản, bảo hiểm thân vỏ 100%, giao xe tận nơi miễn phí tại sân bay.'
-              : 'Best rates on economy to luxury rental cars with free airport delivery and comprehensive insurance.'}
-          </p>
-
-          {/* Quick Search */}
-          <div className="rounded-2xl border border-white/20 bg-white p-3 sm:p-4 shadow-2xl dark:bg-navy-900 text-slate-800 dark:text-white">
+    <div className="min-h-screen bg-slate-50 dark:bg-navy-950 pb-16">
+      {/* 1. TOP SEARCH BAR (FlightSearchPage Compact Style) */}
+      <div className="border-b border-slate-200 bg-white py-4 shadow-sm dark:border-navy-800 dark:bg-navy-900">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-3 sm:p-4 shadow-sm dark:border-navy-700 dark:bg-navy-850">
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 mb-1">
+                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
                   {isVi ? 'Địa điểm nhận xe' : 'Pickup Location'}
                 </label>
                 <div className="relative flex items-center">
@@ -169,19 +183,19 @@ export default function CarRentalPage() {
                   <select
                     value={pickupCity}
                     onChange={(e) => setPickupCity(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
+                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
                   >
-                    <option value="HAN_AIRPORT">Sân bay Quốc tế Nội Bài (Hà Nội)</option>
+                    <option value="HAN_AIRPORT">Sân bay Nội Bài (Hà Nội)</option>
                     <option value="SGN_AIRPORT">Sân bay Tân Sơn Nhất (TP.HCM)</option>
-                    <option value="DAD_AIRPORT">Sân bay Quốc tế Đà Nẵng</option>
-                    <option value="PQC_AIRPORT">Sân bay Quốc tế Phú Quốc</option>
-                    <option value="SAI_AIRPORT">Sân bay Quốc tế Siem Reap (SAI)</option>
+                    <option value="DAD_AIRPORT">Sân bay Đà Nẵng</option>
+                    <option value="PQC_AIRPORT">Sân bay Phú Quốc</option>
+                    <option value="SAI_AIRPORT">Sân bay Siem Reap (SAI)</option>
                   </select>
                 </div>
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 mb-1">
+                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
                   {isVi ? 'Ngày nhận xe' : 'Pickup Date'}
                 </label>
                 <div className="relative flex items-center">
@@ -190,13 +204,13 @@ export default function CarRentalPage() {
                     type="date"
                     value={pickupDate}
                     onChange={(e) => setPickupDate(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
+                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 mb-1">
+                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
                   {isVi ? 'Ngày trả xe' : 'Return Date'}
                 </label>
                 <div className="relative flex items-center">
@@ -205,122 +219,255 @@ export default function CarRentalPage() {
                     type="date"
                     value={returnDate}
                     onChange={(e) => setReturnDate(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
+                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 mb-1">
-                  {isVi ? 'Hình thức thuê' : 'Rental Option'}
+                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
+                  {isVi ? 'Bảo hiểm & Hỗ trợ' : 'Insurance'}
                 </label>
-                <div className="relative flex items-center">
-                  <Key className="absolute left-3 h-4 w-4 text-[#003580] dark:text-sky-400" />
-                  <select
-                    value={rentalFilter}
-                    onChange={(e) => setRentalFilter(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
-                  >
-                    <option value="ALL">{isVi ? 'Tất cả (Tự lái & Có tài)' : 'All Options'}</option>
-                    <option value="SELF_DRIVE">{isVi ? 'Xe tự lái' : 'Self-Drive'}</option>
-                    <option value="WITH_DRIVER">{isVi ? 'Có tài xế chuyên nghiệp' : 'With Driver'}</option>
-                  </select>
+                <div className="flex items-center gap-2 h-9 px-3 bg-emerald-50 text-emerald-800 rounded-xl font-bold text-xs border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800">
+                  <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0" />
+                  <span>{isVi ? 'Bảo hiểm thân vỏ 100%' : '100% Comprehensive'}</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* 2. FLEET LISTINGS */}
-      <section className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 mt-8">
-        <div className="mb-6">
-          <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
-            {isVi ? 'Danh Sách Dòng Xe Đang Sẵn Sàng Giao Ngay' : 'Available Rental Vehicles'}
-          </h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-            {isVi ? 'Miễn phí hủy trước 24 giờ · Bảo hiểm toàn diện 100%' : 'Free cancellation up to 24h before pickup'}
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredCars.map((car) => (
-            <div
-              key={car.id}
-              className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm hover:shadow-xl transition-all duration-300 dark:border-navy-800 dark:bg-navy-900 flex flex-col justify-between"
-            >
-              <div>
-                <div className="relative h-48 w-full overflow-hidden bg-slate-100 dark:bg-navy-800">
-                  <img
-                    src={car.image}
-                    alt={car.name}
-                    className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute top-3 left-3 rounded-full bg-[#003580]/90 backdrop-blur-md px-2.5 py-1 text-[10px] font-bold text-white shadow-md">
-                    {car.type === 'WITH_DRIVER' ? 'CÓ TÀI XẾ' : 'TỰ LÁI'}
-                  </div>
+      {/* 2. MAIN 12-COLUMN LAYOUT (SIDEBAR FILTERS + RESULTS FEED) */}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          
+          {/* FILTERS SIDEBAR (3 Cols) */}
+          <aside className="lg:col-span-3 space-y-6">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-navy-800 dark:bg-navy-900">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-navy-800">
+                <div className="flex items-center gap-2">
+                  <Filter className="h-4 w-4 text-[#003580] dark:text-sky-400" />
+                  <span className="font-bold text-sm text-slate-900 dark:text-white">
+                    {isVi ? 'Bộ lọc Thuê xe' : 'Car Filters'}
+                  </span>
                 </div>
-
-                <div className="p-5 space-y-3">
-                  <div>
-                    <span className="text-[11px] font-bold text-[#003580] dark:text-sky-400 uppercase tracking-wider block">
-                      {car.category}
-                    </span>
-                    <h3 className="text-base font-black text-slate-900 dark:text-white group-hover:text-[#003580] dark:group-hover:text-sky-400 transition-colors mt-0.5">
-                      {car.name}
-                    </h3>
-                  </div>
-
-                  {/* Specs Grid */}
-                  <div className="grid grid-cols-2 gap-2 text-xs text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-navy-800 p-3 rounded-2xl">
-                    <div className="flex items-center gap-1.5 font-medium">
-                      <Users className="h-3.5 w-3.5 text-slate-400" />
-                      <span>{car.seats} chỗ ngồi</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 font-medium">
-                      <Briefcase className="h-3.5 w-3.5 text-slate-400" />
-                      <span>{car.bags} vali</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 font-medium col-span-2">
-                      <Fuel className="h-3.5 w-3.5 text-slate-400" />
-                      <span>{car.transmission} · {car.fuel}</span>
-                    </div>
-                  </div>
-
-                  {/* Tags */}
-                  <div className="space-y-1 pt-1">
-                    {car.tags.map((t, idx) => (
-                      <div key={idx} className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400">
-                        <Check className="h-3 w-3 text-emerald-500 shrink-0" />
-                        <span>{t}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-5 pt-0 border-t border-slate-100 dark:border-navy-800 flex items-center justify-between mt-4">
-                <div>
-                  <span className="text-[11px] text-slate-400 line-through block">{formatPrice(car.originalPrice)}</span>
-                  <div className="text-xl font-black text-[#003580] dark:text-sky-400">
-                    {formatPrice(car.pricePerDay)}
-                  </div>
-                  <span className="text-[10px] text-slate-500 dark:text-slate-400">/ ngày (24 giờ)</span>
-                </div>
-
                 <button
                   type="button"
-                  onClick={() => handleOpenBooking(car)}
-                  className="flex items-center gap-1.5 rounded-2xl bg-[#003580] px-4 py-2.5 text-xs font-bold text-white shadow-md hover:bg-[#002660] dark:bg-sky-500 dark:text-navy-950 dark:hover:bg-sky-400 active:scale-95 transition-all"
+                  onClick={resetFilters}
+                  className="flex items-center gap-1 text-xs font-semibold text-[#006ce4] hover:underline dark:text-sky-400"
                 >
-                  <Sparkles className="h-3.5 w-3.5" />
-                  <span>{isVi ? 'Thuê Ngay' : 'Rent Car'}</span>
+                  <RotateCcw className="h-3 w-3" />
+                  <span>{isVi ? 'Đặt lại' : 'Reset'}</span>
                 </button>
               </div>
+
+              {/* Driver Option */}
+              <div className="py-4 border-b border-slate-100 dark:border-navy-800 space-y-2.5">
+                <h4 className="font-bold text-xs text-slate-900 dark:text-white uppercase tracking-wider">
+                  {isVi ? 'Hình thức thuê' : 'Rental Option'}
+                </h4>
+                {[
+                  { id: 'SELF_DRIVE', label: isVi ? 'Xe tự lái' : 'Self-Drive' },
+                  { id: 'WITH_DRIVER', label: isVi ? 'Có tài xế riêng' : 'With Chauffeur' }
+                ].map((opt) => {
+                  const isChecked = selectedDriverTypes.includes(opt.id)
+                  return (
+                    <label key={opt.id} className="flex items-center gap-2.5 text-xs text-slate-800 dark:text-slate-200 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={(e) => {
+                          if (e.target.checked) setSelectedDriverTypes([...selectedDriverTypes, opt.id])
+                          else setSelectedDriverTypes(selectedDriverTypes.filter((d) => d !== opt.id))
+                        }}
+                        className="rounded text-[#006ce4] focus:ring-[#006ce4]"
+                      />
+                      <span className="font-medium">{opt.label}</span>
+                    </label>
+                  )
+                })}
+              </div>
+
+              {/* Car Type */}
+              <div className="py-4 border-b border-slate-100 dark:border-navy-800 space-y-2.5">
+                <h4 className="font-bold text-xs text-slate-900 dark:text-white uppercase tracking-wider">
+                  {isVi ? 'Phân khúc xe' : 'Vehicle Class'}
+                </h4>
+                {[
+                  { id: 'SEDAN', label: 'Sedan 4-5 Chỗ' },
+                  { id: 'SUV', label: 'SUV 5-7 Chỗ Gầm Cao' },
+                  { id: 'LIMOUSINE', label: 'VIP Limousine 9 Chỗ' },
+                  { id: 'VAN', label: 'Minivan 16 Chỗ' }
+                ].map((cat) => {
+                  const isChecked = selectedCategories.includes(cat.id)
+                  return (
+                    <label key={cat.id} className="flex items-center gap-2.5 text-xs text-slate-800 dark:text-slate-200 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={(e) => {
+                          if (e.target.checked) setSelectedCategories([...selectedCategories, cat.id])
+                          else setSelectedCategories(selectedCategories.filter((c) => c !== cat.id))
+                        }}
+                        className="rounded text-[#006ce4] focus:ring-[#006ce4]"
+                      />
+                      <span className="font-medium">{cat.label}</span>
+                    </label>
+                  )
+                })}
+              </div>
+
+              {/* Seats */}
+              <div className="pt-4 space-y-2.5">
+                <h4 className="font-bold text-xs text-slate-900 dark:text-white uppercase tracking-wider">
+                  {isVi ? 'Số chỗ ngồi' : 'Seats'}
+                </h4>
+                {[5, 7, 9, 16].map((seats) => {
+                  const isChecked = selectedSeats.includes(seats)
+                  return (
+                    <label key={seats} className="flex items-center gap-2.5 text-xs text-slate-800 dark:text-slate-200 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={(e) => {
+                          if (e.target.checked) setSelectedSeats([...selectedSeats, seats])
+                          else setSelectedSeats(selectedSeats.filter((s) => s !== seats))
+                        }}
+                        className="rounded text-[#006ce4] focus:ring-[#006ce4]"
+                      />
+                      <span className="font-medium">{seats} {isVi ? 'chỗ ngồi' : 'seats'}</span>
+                    </label>
+                  )
+                })}
+              </div>
             </div>
-          ))}
+          </aside>
+
+          {/* RESULTS FEED (9 Cols) */}
+          <section className="lg:col-span-9 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm dark:border-navy-800 dark:bg-navy-900">
+              <p className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
+                {isVi ? `Tìm thấy ${filteredCars.length} dòng xe sẵn sàng giao tại sân bay` : `Found ${filteredCars.length} vehicles`}
+              </p>
+
+              <div className="flex items-center gap-2">
+                <ArrowUpDown className="h-4 w-4 text-slate-400" />
+                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                  {isVi ? 'Sắp xếp:' : 'Sort:'}
+                </span>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
+                >
+                  <option value="PRICE_ASC">{isVi ? 'Giá thuê thấp nhất' : 'Price: Low to High'}</option>
+                  <option value="PRICE_DESC">{isVi ? 'Giá thuê cao nhất' : 'Price: High to Low'}</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Cars Feed */}
+            {filteredCars.length === 0 ? (
+              <div className="rounded-3xl border border-slate-200 bg-white p-12 text-center dark:border-navy-800 dark:bg-navy-900">
+                <Car className="mx-auto h-12 w-12 text-slate-300 mb-3" />
+                <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                  {isVi ? 'Không tìm thấy dòng xe phù hợp' : 'No cars match your filters'}
+                </h3>
+                <button
+                  type="button"
+                  onClick={resetFilters}
+                  className="mt-4 rounded-xl bg-[#003580] px-4 py-2 text-xs font-bold text-white dark:bg-sky-500 dark:text-navy-950"
+                >
+                  {isVi ? 'Xem tất cả dòng xe' : 'Reset Filters'}
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {filteredCars.map((car) => (
+                  <div
+                    key={car.id}
+                    className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm hover:shadow-lg transition-all duration-300 dark:border-navy-800 dark:bg-navy-900"
+                  >
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-0">
+                      {/* Photo */}
+                      <div className="relative md:col-span-4 h-52 md:h-auto overflow-hidden bg-slate-100 dark:bg-navy-800">
+                        <img
+                          src={car.image}
+                          alt={car.name}
+                          className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute top-3 left-3 rounded-full bg-[#003580]/90 backdrop-blur-md px-2.5 py-1 text-[10px] font-bold text-white shadow-md">
+                          {car.type === 'WITH_DRIVER' ? 'CÓ TÀI XẾ' : 'TỰ LÁI'}
+                        </div>
+                      </div>
+
+                      {/* Middle Details */}
+                      <div className="md:col-span-5 p-5 flex flex-col justify-between border-b md:border-b-0 md:border-r border-slate-100 dark:border-navy-800">
+                        <div className="space-y-2">
+                          <span className="text-[11px] font-bold text-[#003580] dark:text-sky-400 uppercase tracking-wider block">
+                            {car.categoryLabel}
+                          </span>
+                          <h3 className="text-base font-black text-slate-900 group-hover:text-[#003580] dark:text-white dark:group-hover:text-sky-400 transition-colors">
+                            {car.name}
+                          </h3>
+
+                          {/* Specs Grid */}
+                          <div className="grid grid-cols-2 gap-2 text-xs text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-navy-800 p-2.5 rounded-xl">
+                            <div className="flex items-center gap-1.5 font-medium">
+                              <Users className="h-3.5 w-3.5 text-slate-400" />
+                              <span>{car.seats} chỗ ngồi</span>
+                            </div>
+                            <div className="flex items-center gap-1.5 font-medium">
+                              <Briefcase className="h-3.5 w-3.5 text-slate-400" />
+                              <span>{car.bags} vali</span>
+                            </div>
+                            <div className="flex items-center gap-1.5 font-medium col-span-2">
+                              <Fuel className="h-3.5 w-3.5 text-slate-400" />
+                              <span>{car.transmission} · {car.fuel}</span>
+                            </div>
+                          </div>
+
+                          <div className="space-y-1 pt-1">
+                            {car.tags.map((t, idx) => (
+                              <div key={idx} className="flex items-center gap-1.5 text-[11px] text-slate-500 dark:text-slate-400">
+                                <Check className="h-3 w-3 text-emerald-500 shrink-0" />
+                                <span>{t}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Right Price & CTA */}
+                      <div className="md:col-span-3 p-5 flex flex-col justify-between bg-slate-50/50 dark:bg-navy-900/50">
+                        <div className="space-y-2 text-right">
+                          <span className="text-[11px] text-slate-400 line-through block">
+                            {formatPrice(car.originalPrice)}
+                          </span>
+                          <div className="text-xl font-black text-[#003580] dark:text-sky-400">
+                            {formatPrice(car.pricePerDay)}
+                          </div>
+                          <span className="text-[10px] text-slate-500 block">/ ngày (24 giờ)</span>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => handleOpenBooking(car)}
+                          className="mt-4 w-full flex items-center justify-center gap-1.5 rounded-xl bg-[#003580] py-2.5 text-xs font-bold text-white shadow-md hover:bg-[#002660] dark:bg-sky-500 dark:text-navy-950 dark:hover:bg-sky-400 active:scale-95 transition-all"
+                        >
+                          <Sparkles className="h-3.5 w-3.5" />
+                          <span>{isVi ? 'Thuê Xe Ngay' : 'Rent Now'}</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
         </div>
-      </section>
+      </div>
 
       {/* 3. BOOKING MODAL */}
       {selectedCar && (
@@ -338,7 +485,7 @@ export default function CarRentalPage() {
               <form onSubmit={handleConfirmCar} className="space-y-4">
                 <div className="border-b border-slate-100 dark:border-navy-800 pb-3">
                   <span className="rounded-md bg-sky-100 px-2 py-0.5 text-[10px] font-black text-sky-900 uppercase dark:bg-sky-950 dark:text-sky-300">
-                    {selectedCar.category}
+                    {selectedCar.categoryLabel}
                   </span>
                   <h3 className="text-xl font-black text-slate-900 dark:text-white mt-1">
                     {selectedCar.name}

@@ -13,7 +13,9 @@ import {
   CheckCircle2,
   Users,
   Ticket,
-  ChevronRight
+  Filter,
+  ArrowUpDown,
+  RotateCcw
 } from 'lucide-react'
 import { useCurrency } from '../context/CurrencyContext'
 import { useLanguage } from '../context/LanguageContext'
@@ -32,8 +34,9 @@ const ATTRACTIONS = [
     price: 950000,
     originalPrice: 1200000,
     image: 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800&auto=format&fit=crop&q=80',
-    tags: ['Cầu Vàng bàn tay khổng lồ', 'Làng Pháp cổ kính', 'Cáp treo đạt kỷ lục Guinness', 'Buffet trưa Á-Âu'],
-    category: 'THEME_PARK'
+    tags: ['Cầu Vàng bàn tay khổng lồ', 'Làng Pháp cổ kính', 'Cáp treo kỷ lục Guinness', 'Buffet trưa Á-Âu'],
+    category: 'THEME_PARK',
+    categoryLabel: 'Công viên giải trí'
   },
   {
     id: 'attr-angkor-sunrise',
@@ -48,8 +51,9 @@ const ATTRACTIONS = [
     price: 890000,
     originalPrice: 1150000,
     image: 'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=800&auto=format&fit=crop&q=80',
-    tags: ['Hướng dẫn viên tiếng Việt/Anh', 'Xe Tuk Tuk / Limousine đón tận khách sạn', 'Bữa sáng picnic trước hồ sen Angkor'],
-    category: 'CULTURAL_TOUR'
+    tags: ['Hướng dẫn viên tiếng Việt/Anh', 'Xe đưa đón tận khách sạn', 'Bữa sáng picnic trước Angkor'],
+    category: 'CULTURAL_TOUR',
+    categoryLabel: 'Tour văn hóa & di sản'
   },
   {
     id: 'attr-halong-cruise',
@@ -64,8 +68,9 @@ const ATTRACTIONS = [
     price: 1350000,
     originalPrice: 1750000,
     image: 'https://images.unsplash.com/photo-1528127269322-539801943592?w=800&auto=format&fit=crop&q=80',
-    tags: ['Buffet hải sản tươi sống', 'Chèo thuyền Kayak Hang Luồn', 'Bể sục Jacuzzi trên boong tàu', 'Đảo Titov'],
-    category: 'BOAT_TOUR'
+    tags: ['Buffet hải sản tươi sống', 'Chèo thuyền Kayak Hang Luồn', 'Bể sục Jacuzzi boong tàu'],
+    category: 'BOAT_TOUR',
+    categoryLabel: 'Du thuyền biển đảo'
   },
   {
     id: 'attr-vinwonders-pq',
@@ -80,8 +85,9 @@ const ATTRACTIONS = [
     price: 1250000,
     originalPrice: 1550000,
     image: 'https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?w=800&auto=format&fit=crop&q=80',
-    tags: ['Cung điện Hải Vương hình Rùa', 'Vườn thú bán hoang dã lớn nhất VN', 'Show diễn triệu đô Once Show'],
-    category: 'THEME_PARK'
+    tags: ['Cung điện Hải Vương hình Rùa', 'Vườn thú bán hoang dã Safari', 'Show diễn Once triệu đô'],
+    category: 'THEME_PARK',
+    categoryLabel: 'Công viên giải trí'
   },
   {
     id: 'attr-bangkok-palace',
@@ -92,12 +98,13 @@ const ATTRACTIONS = [
     country: 'Thailand',
     rating: 4.9,
     reviews: 6200,
-    duration: '4 giờ (Sáng hoặc Chiều)',
+    duration: '4 giờ (Sáng / Chiều)',
     price: 750000,
     originalPrice: 950000,
     image: 'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=800&auto=format&fit=crop&q=80',
-    tags: ['Bao gồm vé vào cổng chính thức', 'Lối đi ưu tiên không phải xếp hàng', 'Hướng dẫn viên chuyên nghiệp'],
-    category: 'CULTURAL_TOUR'
+    tags: ['Vé vào cổng chính thức', 'Lối đi VIP ưu tiên không xếp hàng', 'HDV chuyên nghiệp'],
+    category: 'CULTURAL_TOUR',
+    categoryLabel: 'Tour văn hóa & di sản'
   }
 ]
 
@@ -108,19 +115,52 @@ export default function AttractionsPage() {
   const isVi = language?.code === 'vi'
   const isKm = language?.code === 'km'
 
-  const [selectedCity, setSelectedCity] = useState('ALL')
-  const [selectedTour, setSelectedTour] = useState(null)
+  // Search parameters
+  const [searchLocation, setSearchLocation] = useState('')
   const [tourDate, setTourDate] = useState('2026-10-18')
+
+  // Sidebar Filters
+  const [selectedCities, setSelectedCities] = useState([])
+  const [selectedCategories, setSelectedCategories] = useState([])
+  const [priceBucket, setPriceBucket] = useState('ALL')
+  const [sortBy, setSortBy] = useState('POPULAR')
+
+  // Modal
+  const [selectedTour, setSelectedTour] = useState(null)
   const [ticketCount, setTicketCount] = useState({ adult: 2, child: 0 })
   const [buyerInfo, setBuyerInfo] = useState({ name: '', phone: '', email: '' })
   const [bookingSuccess, setBookingSuccess] = useState(null)
 
+  const resetFilters = () => {
+    setSelectedCities([])
+    setSelectedCategories([])
+    setPriceBucket('ALL')
+    setSortBy('POPULAR')
+    setSearchLocation('')
+  }
+
   const filteredAttractions = useMemo(() => {
     return ATTRACTIONS.filter((attr) => {
-      if (selectedCity !== 'ALL' && attr.city !== selectedCity) return false
+      if (searchLocation.trim()) {
+        const q = searchLocation.toLowerCase().trim()
+        const matchTitle = attr.title.toLowerCase().includes(q) || attr.titleEn.toLowerCase().includes(q)
+        const matchCity = attr.city.toLowerCase().includes(q)
+        if (!matchTitle && !matchCity) return false
+      }
+      if (selectedCities.length > 0 && !selectedCities.includes(attr.city)) return false
+      if (selectedCategories.length > 0 && !selectedCategories.includes(attr.category)) return false
+
+      if (priceBucket === 'UNDER_1M' && attr.price >= 1000000) return false
+      if (priceBucket === 'OVER_1M' && attr.price < 1000000) return false
+
       return true
+    }).sort((a, b) => {
+      if (sortBy === 'PRICE_ASC') return a.price - b.price
+      if (sortBy === 'PRICE_DESC') return b.price - a.price
+      if (sortBy === 'RATING') return b.rating - a.rating
+      return b.reviews - a.reviews
     })
-  }, [selectedCity])
+  }, [searchLocation, selectedCities, selectedCategories, priceBucket, sortBy])
 
   const handleOpenBooking = (attr) => {
     setSelectedTour(attr)
@@ -148,120 +188,283 @@ export default function AttractionsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-navy-950 pb-20">
-      {/* 1. HERO HEADER */}
-      <section className="relative bg-gradient-to-r from-[#003580] via-[#004e92] to-[#002244] pt-8 pb-16 px-4 sm:px-6 lg:px-8 text-white">
-        <div className="mx-auto max-w-6xl space-y-4">
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-1 text-xs font-semibold text-sky-200 backdrop-blur-md">
-            <Compass className="h-3.5 w-3.5 text-amber-300" />
-            <span>AeroSmart Attractions · Vé Tham Quan, Tour & Trải Nghiệm Văn Hóa</span>
-          </div>
-
-          <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white">
-            {isVi ? 'Khám Phá Điểm Đến Tuyệt Hảo & Đặt Vé Tham Quan Ưu Tiên' : 'Explore Top Attractions & Skip-the-line Tickets'}
-          </h1>
-          <p className="text-xs sm:text-sm text-sky-100 max-w-2xl font-medium">
-            {isVi
-              ? 'Nhận vé điện tử tức thì qua mã QR, không cần xếp hàng mua vé tại cổng. Hủy linh hoạt, hoàn tiền 100% trước 24h.'
-              : 'Instant mobile e-tickets with QR codes. Skip the long ticket lines at world wonders, theme parks and cruises.'}
-          </p>
-
-          {/* City Filter Tabs */}
-          <div className="flex flex-wrap items-center gap-2 pt-2">
-            {['ALL', 'Đà Nẵng', 'Siem Reap', 'Quảng Ninh', 'Phú Quốc', 'Bangkok'].map((c) => (
-              <button
-                key={c}
-                type="button"
-                onClick={() => setSelectedCity(c)}
-                className={`rounded-xl px-4 py-2 text-xs font-bold transition-all shadow-sm ${
-                  selectedCity === c
-                    ? 'bg-white text-[#003580] shadow-md dark:bg-sky-400 dark:text-navy-950'
-                    : 'bg-white/10 text-white hover:bg-white/20 border border-white/20'
-                }`}
-              >
-                {c === 'ALL' ? (isVi ? 'Tất cả điểm đến' : 'All Destinations') : c}
-              </button>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 2. ATTRACTIONS LIST */}
-      <section className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 mt-8">
-        <div className="mb-6">
-          <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
-            {isVi ? 'Danh Sách Vé Trải Nghiệm & Tour Du Lịch Đặc Sắc' : 'Must-Visit Attractions & Experiences'}
-          </h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-            {isVi ? 'Xác nhận tức thì · Mã QR quét trực tiếp tại cửa kiểm soát' : 'Instant digital voucher confirmation'}
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredAttractions.map((attr) => (
-            <div
-              key={attr.id}
-              className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm hover:shadow-xl transition-all duration-300 dark:border-navy-800 dark:bg-navy-900 flex flex-col justify-between"
-            >
+    <div className="min-h-screen bg-slate-50 dark:bg-navy-950 pb-16">
+      {/* 1. TOP SEARCH BAR (FlightSearchPage Compact Style) */}
+      <div className="border-b border-slate-200 bg-white py-4 shadow-sm dark:border-navy-800 dark:bg-navy-900">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-3 sm:p-4 shadow-sm dark:border-navy-700 dark:bg-navy-850">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
               <div>
-                <div className="relative h-48 w-full overflow-hidden bg-slate-100 dark:bg-navy-800">
-                  <img
-                    src={attr.image}
-                    alt={attr.title}
-                    className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
+                  {isVi ? 'Điểm đến / Tên địa điểm' : 'Destination / Attraction'}
+                </label>
+                <div className="relative flex items-center">
+                  <MapPin className="absolute left-3 h-4 w-4 text-[#003580] dark:text-sky-400" />
+                  <input
+                    type="text"
+                    value={searchLocation}
+                    onChange={(e) => setSearchLocation(e.target.value)}
+                    placeholder={isVi ? 'Bà Nà Hills, Angkor Wat, Vịnh Hạ Long...' : 'Theme park, tour or city...'}
+                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
                   />
-                  <div className="absolute top-3 left-3 rounded-full bg-amber-400 px-2.5 py-0.5 text-[10px] font-black text-navy-950 shadow-md">
-                    ★ {attr.rating} ({attr.reviews})
-                  </div>
-                  <div className="absolute bottom-3 left-3 rounded-xl bg-slate-900/80 backdrop-blur-md px-2.5 py-1 text-[11px] font-bold text-white flex items-center gap-1">
-                    <MapPin className="h-3 w-3 text-sky-400" />
-                    <span>{attr.city}, {attr.country}</span>
-                  </div>
-                </div>
-
-                <div className="p-5 space-y-3">
-                  <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-medium">
-                    <Clock className="h-3.5 w-3.5 text-slate-400" />
-                    <span>{attr.duration}</span>
-                  </div>
-
-                  <h3 className="text-base font-black text-slate-900 dark:text-white group-hover:text-[#003580] dark:group-hover:text-sky-400 transition-colors line-clamp-2">
-                    {isVi ? attr.title : (isKm ? attr.titleKm : attr.titleEn)}
-                  </h3>
-
-                  <div className="space-y-1 pt-1">
-                    {attr.tags.slice(0, 3).map((t, idx) => (
-                      <div key={idx} className="flex items-center gap-1.5 text-[11px] text-slate-600 dark:text-slate-300">
-                        <Check className="h-3 w-3 text-emerald-500 shrink-0" />
-                        <span className="line-clamp-1">{t}</span>
-                      </div>
-                    ))}
-                  </div>
                 </div>
               </div>
 
-              <div className="p-5 pt-0 border-t border-slate-100 dark:border-navy-800 flex items-center justify-between mt-4">
-                <div>
-                  <span className="text-[11px] text-slate-400 line-through block">{formatPrice(attr.originalPrice)}</span>
-                  <div className="text-xl font-black text-[#003580] dark:text-sky-400">
-                    {formatPrice(attr.price)}
-                  </div>
-                  <span className="text-[10px] text-slate-500 dark:text-slate-400">/ 1 vé điện tử</span>
+              <div>
+                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
+                  {isVi ? 'Ngày tham quan dự kiến' : 'Visit Date'}
+                </label>
+                <div className="relative flex items-center">
+                  <Calendar className="absolute left-3 h-4 w-4 text-[#003580] dark:text-sky-400" />
+                  <input
+                    type="date"
+                    value={tourDate}
+                    onChange={(e) => setTourDate(e.target.value)}
+                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
+                  />
                 </div>
+              </div>
 
-                <button
-                  type="button"
-                  onClick={() => handleOpenBooking(attr)}
-                  className="flex items-center gap-1.5 rounded-2xl bg-[#003580] px-4 py-2.5 text-xs font-bold text-white shadow-md hover:bg-[#002660] dark:bg-sky-500 dark:text-navy-950 dark:hover:bg-sky-400 active:scale-95 transition-all"
-                >
-                  <Ticket className="h-3.5 w-3.5" />
-                  <span>{isVi ? 'Mua Vé Ngay' : 'Get Tickets'}</span>
-                </button>
+              <div>
+                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
+                  {isVi ? 'Đặc quyền vé AeroSmart' : 'Voucher Benefits'}
+                </label>
+                <div className="flex items-center gap-2 h-9 px-3 bg-sky-50 text-[#003580] rounded-xl font-bold text-xs border border-sky-200 dark:bg-sky-950/60 dark:text-sky-300 dark:border-sky-800">
+                  <QrCode className="h-4 w-4 text-[#003580] dark:text-sky-400 shrink-0" />
+                  <span>{isVi ? 'Mã QR quét tại cổng · Không xếp hàng' : 'Instant QR Voucher'}</span>
+                </div>
               </div>
             </div>
-          ))}
+          </div>
         </div>
-      </section>
+      </div>
+
+      {/* 2. MAIN 12-COLUMN LAYOUT (SIDEBAR FILTERS + RESULTS FEED) */}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          
+          {/* FILTERS SIDEBAR (3 Cols) */}
+          <aside className="lg:col-span-3 space-y-6">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-navy-800 dark:bg-navy-900">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-navy-800">
+                <div className="flex items-center gap-2">
+                  <Filter className="h-4 w-4 text-[#003580] dark:text-sky-400" />
+                  <span className="font-bold text-sm text-slate-900 dark:text-white">
+                    {isVi ? 'Bộ lọc Địa điểm' : 'Attraction Filters'}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={resetFilters}
+                  className="flex items-center gap-1 text-xs font-semibold text-[#006ce4] hover:underline dark:text-sky-400"
+                >
+                  <RotateCcw className="h-3 w-3" />
+                  <span>{isVi ? 'Đặt lại' : 'Reset'}</span>
+                </button>
+              </div>
+
+              {/* Destinations */}
+              <div className="py-4 border-b border-slate-100 dark:border-navy-800 space-y-2.5">
+                <h4 className="font-bold text-xs text-slate-900 dark:text-white uppercase tracking-wider">
+                  {isVi ? 'Thành phố / Điểm đến' : 'Destinations'}
+                </h4>
+                {['Đà Nẵng', 'Siem Reap', 'Quảng Ninh', 'Phú Quốc', 'Bangkok'].map((city) => {
+                  const count = ATTRACTIONS.filter((a) => a.city === city).length
+                  const isChecked = selectedCities.includes(city)
+                  return (
+                    <label key={city} className="flex items-center justify-between text-xs text-slate-800 dark:text-slate-200 cursor-pointer group">
+                      <div className="flex items-center gap-2.5">
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={(e) => {
+                            if (e.target.checked) setSelectedCities([...selectedCities, city])
+                            else setSelectedCities(selectedCities.filter((c) => c !== city))
+                          }}
+                          className="rounded text-[#006ce4] focus:ring-[#006ce4]"
+                        />
+                        <span className="font-medium group-hover:text-[#003580] dark:group-hover:text-sky-400 transition-colors">{city}</span>
+                      </div>
+                      <span className="text-slate-400 text-xs font-semibold">{count}</span>
+                    </label>
+                  )
+                })}
+              </div>
+
+              {/* Category */}
+              <div className="py-4 border-b border-slate-100 dark:border-navy-800 space-y-2.5">
+                <h4 className="font-bold text-xs text-slate-900 dark:text-white uppercase tracking-wider">
+                  {isVi ? 'Thể loại trải nghiệm' : 'Category'}
+                </h4>
+                {[
+                  { id: 'THEME_PARK', label: isVi ? 'Công viên giải trí' : 'Theme Parks' },
+                  { id: 'CULTURAL_TOUR', label: isVi ? 'Tour văn hóa & di sản' : 'Cultural Tours' },
+                  { id: 'BOAT_TOUR', label: isVi ? 'Du thuyền biển đảo' : 'Cruises & Boat' }
+                ].map((cat) => {
+                  const isChecked = selectedCategories.includes(cat.id)
+                  return (
+                    <label key={cat.id} className="flex items-center gap-2.5 text-xs text-slate-800 dark:text-slate-200 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={(e) => {
+                          if (e.target.checked) setSelectedCategories([...selectedCategories, cat.id])
+                          else setSelectedCategories(selectedCategories.filter((c) => c !== cat.id))
+                        }}
+                        className="rounded text-[#006ce4] focus:ring-[#006ce4]"
+                      />
+                      <span className="font-medium">{cat.label}</span>
+                    </label>
+                  )
+                })}
+              </div>
+
+              {/* Price */}
+              <div className="pt-4 space-y-2.5">
+                <h4 className="font-bold text-xs text-slate-900 dark:text-white uppercase tracking-wider">
+                  {isVi ? 'Mức giá vé' : 'Ticket Price'}
+                </h4>
+                {[
+                  { id: 'ALL', label: isVi ? 'Tất cả mức giá' : 'All Prices' },
+                  { id: 'UNDER_1M', label: isVi ? 'Dưới 1.000.000đ' : 'Under 1,000,000đ' },
+                  { id: 'OVER_1M', label: isVi ? 'Từ 1.000.000đ trở lên' : 'From 1,000,000đ' }
+                ].map((p) => (
+                  <label key={p.id} className="flex items-center gap-2.5 text-xs text-slate-800 dark:text-slate-200 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="attrPriceFilter"
+                      checked={priceBucket === p.id}
+                      onChange={() => setPriceBucket(p.id)}
+                      className="text-[#006ce4] focus:ring-[#006ce4]"
+                    />
+                    <span className="font-medium">{p.label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          </aside>
+
+          {/* RESULTS FEED (9 Cols) */}
+          <section className="lg:col-span-9 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm dark:border-navy-800 dark:bg-navy-900">
+              <p className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
+                {isVi ? `Tìm thấy ${filteredAttractions.length} vé tham quan & tour trải nghiệm` : `Found ${filteredAttractions.length} attractions`}
+              </p>
+
+              <div className="flex items-center gap-2">
+                <ArrowUpDown className="h-4 w-4 text-slate-400" />
+                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                  {isVi ? 'Sắp xếp:' : 'Sort:'}
+                </span>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
+                >
+                  <option value="POPULAR">{isVi ? 'Phổ biến nhất' : 'Most Popular'}</option>
+                  <option value="PRICE_ASC">{isVi ? 'Giá vé thấp nhất' : 'Price: Low to High'}</option>
+                  <option value="PRICE_DESC">{isVi ? 'Giá vé cao nhất' : 'Price: High to Low'}</option>
+                  <option value="RATING">{isVi ? 'Đánh giá cao nhất' : 'Highest Rated'}</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Attractions Cards */}
+            {filteredAttractions.length === 0 ? (
+              <div className="rounded-3xl border border-slate-200 bg-white p-12 text-center dark:border-navy-800 dark:bg-navy-900">
+                <Compass className="mx-auto h-12 w-12 text-slate-300 mb-3" />
+                <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                  {isVi ? 'Không tìm thấy vé tham quan phù hợp' : 'No attractions match your filters'}
+                </h3>
+                <button
+                  type="button"
+                  onClick={resetFilters}
+                  className="mt-4 rounded-xl bg-[#003580] px-4 py-2 text-xs font-bold text-white dark:bg-sky-500 dark:text-navy-950"
+                >
+                  {isVi ? 'Xem tất cả vé' : 'Reset Filters'}
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {filteredAttractions.map((attr) => (
+                  <div
+                    key={attr.id}
+                    className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm hover:shadow-lg transition-all duration-300 dark:border-navy-800 dark:bg-navy-900"
+                  >
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-0">
+                      {/* Photo */}
+                      <div className="relative md:col-span-4 h-52 md:h-auto overflow-hidden bg-slate-100 dark:bg-navy-800">
+                        <img
+                          src={attr.image}
+                          alt={attr.title}
+                          className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute top-3 left-3 rounded-full bg-amber-400 px-2.5 py-0.5 text-[10px] font-black text-navy-950 shadow-md">
+                          ★ {attr.rating} ({attr.reviews})
+                        </div>
+                        <div className="absolute bottom-3 left-3 rounded-xl bg-slate-900/80 backdrop-blur-md px-2.5 py-1 text-[11px] font-bold text-white flex items-center gap-1">
+                          <MapPin className="h-3 w-3 text-sky-400" />
+                          <span>{attr.city}, {attr.country}</span>
+                        </div>
+                      </div>
+
+                      {/* Middle Details */}
+                      <div className="md:col-span-5 p-5 flex flex-col justify-between border-b md:border-b-0 md:border-r border-slate-100 dark:border-navy-800">
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400 font-medium">
+                            <Clock className="h-3.5 w-3.5 text-slate-400" />
+                            <span>{attr.duration}</span>
+                          </div>
+
+                          <h3 className="text-base font-black text-slate-900 dark:text-white group-hover:text-[#003580] dark:group-hover:text-sky-400 transition-colors line-clamp-2">
+                            {isVi ? attr.title : (isKm ? attr.titleKm : attr.titleEn)}
+                          </h3>
+
+                          <div className="space-y-1 pt-1">
+                            {attr.tags.slice(0, 3).map((t, idx) => (
+                              <div key={idx} className="flex items-center gap-1.5 text-[11px] text-slate-600 dark:text-slate-300">
+                                <Check className="h-3 w-3 text-emerald-500 shrink-0" />
+                                <span className="line-clamp-1">{t}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="mt-4 pt-3 border-t border-slate-100 dark:border-navy-800 text-xs text-slate-500 dark:text-slate-400">
+                          <span>Phân loại: </span>
+                          <strong className="text-slate-800 dark:text-slate-200">{attr.categoryLabel}</strong>
+                        </div>
+                      </div>
+
+                      {/* Right Price & CTA */}
+                      <div className="md:col-span-3 p-5 flex flex-col justify-between bg-slate-50/50 dark:bg-navy-900/50">
+                        <div className="space-y-2 text-right">
+                          <span className="text-[11px] text-slate-400 line-through block">
+                            {formatPrice(attr.originalPrice)}
+                          </span>
+                          <div className="text-xl font-black text-[#003580] dark:text-sky-400">
+                            {formatPrice(attr.price)}
+                          </div>
+                          <span className="text-[10px] text-slate-500 block">/ 1 vé điện tử QR</span>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => handleOpenBooking(attr)}
+                          className="mt-4 w-full flex items-center justify-center gap-1.5 rounded-xl bg-[#003580] py-2.5 text-xs font-bold text-white shadow-md hover:bg-[#002660] dark:bg-sky-500 dark:text-navy-950 dark:hover:bg-sky-400 active:scale-95 transition-all"
+                        >
+                          <Ticket className="h-3.5 w-3.5" />
+                          <span>{isVi ? 'Mua Vé Ngay' : 'Get Tickets'}</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
+        </div>
+      </div>
 
       {/* 3. BOOKING MODAL */}
       {selectedTour && (
@@ -298,7 +501,6 @@ export default function AttractionsPage() {
                   />
                 </div>
 
-                {/* Ticket Counts */}
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">
@@ -328,7 +530,6 @@ export default function AttractionsPage() {
                   </div>
                 </div>
 
-                {/* Contact */}
                 <div className="space-y-3 pt-2">
                   <div>
                     <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-400 mb-1">

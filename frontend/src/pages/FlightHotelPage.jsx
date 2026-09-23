@@ -16,7 +16,9 @@ import {
   CheckCircle2,
   MapPin,
   Clock,
-  Utensils
+  Filter,
+  ArrowUpDown,
+  RotateCcw
 } from 'lucide-react'
 import { useCurrency } from '../context/CurrencyContext'
 import { useLanguage } from '../context/LanguageContext'
@@ -27,22 +29,25 @@ const COMBO_PACKAGES = [
     title: 'Combo Phú Quốc Thiên Đường 3N2Đ',
     titleEn: 'Phu Quoc Island Paradise Combo 3D2N',
     titleKm: 'កញ្ចប់ដំណើរកម្សាន្តកោះត្រល់ ៣ថ្ងៃ២យប់',
-    origin: 'Hà Nội (HAN)',
-    destination: 'Phú Quốc (PQC)',
+    origin: 'HAN',
+    originName: 'Hà Nội (HAN)',
+    destination: 'PQC',
+    destinationName: 'Phú Quốc (PQC)',
     airline: 'Vietnam Airlines',
     hotel: 'Vinpearl Resort & Spa Phú Quốc (5 Sao)',
     duration: '3 Ngày 2 Đêm',
+    durationDays: 3,
     image: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800&auto=format&fit=crop&q=80',
     originalPrice: 7500000,
     comboPrice: 4950000,
     saving: 'Tiết kiệm 34%',
-    badge: 'COMBO BÁN CHẠY NHẤT',
+    badge: 'BÁN CHẠY NHẤT',
     highlights: [
-      'Vé máy bay khứ hồi Vietnam Airlines bao gồm 23kg hành lý ký gửi',
-      '2 đêm nghỉ dưỡng tại Vinpearl Resort & Spa Phú Quốc 5 sao sát biển',
+      'Vé máy bay khứ hồi Vietnam Airlines (23kg hành lý)',
+      '2 đêm nghỉ dưỡng Vinpearl Resort 5 sao sát biển',
       'Buffet sáng hải sản cao cấp hàng ngày',
-      'Vé vui chơi không giới hạn tại VinWonders & Vinpearl Safari',
-      'Xe Limousine đưa đón sân bay Phú Quốc 2 chiều miễn phí'
+      'Vé vui chơi không giới hạn VinWonders & Safari',
+      'Xe Limousine đưa đón sân bay Phú Quốc 2 chiều'
     ]
   },
   {
@@ -50,22 +55,25 @@ const COMBO_PACKAGES = [
     title: 'Combo Nghỉ Dưỡng Thượng Lưu Đà Nẵng - Hội An 4N3Đ',
     titleEn: 'Luxury Danang & Hoi An Heritage 4D3N',
     titleKm: 'កញ្ចប់ដំណើរកម្សាន្តដាណាំង ៤ថ្ងៃ៣យប់',
-    origin: 'TP. Hồ Chí Minh (SGN)',
-    destination: 'Đà Nẵng (DAD)',
+    origin: 'SGN',
+    originName: 'TP. Hồ Chí Minh (SGN)',
+    destination: 'DAD',
+    destinationName: 'Đà Nẵng (DAD)',
     airline: 'Bamboo Airways',
     hotel: 'InterContinental Danang Sun Peninsula Resort (5 Sao)',
     duration: '4 Ngày 3 Đêm',
+    durationDays: 4,
     image: 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=800&auto=format&fit=crop&q=80',
     originalPrice: 16500000,
     comboPrice: 11900000,
     saving: 'Tiết kiệm 28%',
-    badge: 'ĐẲNG CẤP THƯƠNG GIA',
+    badge: 'THƯƠNG GIA VIP',
     highlights: [
-      'Vé máy bay khứ hồi Bamboo Airways hạng thương gia / Eco Flex',
-      '3 đêm tại Resort bán đảo Sơn Trà kiến trúc Bill Bensley nổi tiếng',
+      'Vé máy bay khứ hồi Bamboo Airways hạng Eco Flex',
+      '3 đêm tại Resort bán đảo Sơn Trà kiến trúc Bill Bensley',
       'Bao gồm bữa sáng phong cách Pháp & trà chiều view biển',
-      'Miễn phí cáp treo Nam Tram và tour khám phá rừng nguyên sinh Sơn Trà',
-      'Xe Mercedes đưa đón sân bay Quốc tế Đà Nẵng tận sảnh'
+      'Miễn phí cáp treo Nam Tram và tour ngắm voọc chà vá',
+      'Xe Mercedes đưa đón sân bay Đà Nẵng tận sảnh'
     ]
   },
   {
@@ -73,21 +81,24 @@ const COMBO_PACKAGES = [
     title: 'Combo Khám Phá Kỳ Quan Angkor Wat (Siem Reap) 3N2Đ',
     titleEn: 'Mystical Angkor Wat Heritage Flight + Hotel 3D2N',
     titleKm: 'កញ្ចប់ដំណើរកម្សាន្តប្រាសាទអង្គរវត្ត ៣ថ្ងៃ២យប់',
-    origin: 'Hà Nội (HAN)',
-    destination: 'Siem Reap (SAI)',
+    origin: 'HAN',
+    originName: 'Hà Nội (HAN)',
+    destination: 'SAI',
+    destinationName: 'Siem Reap (SAI)',
     airline: 'Cambodia Angkor Air',
     hotel: 'Sofitel Angkor Phokeethra Golf & Spa Resort (5 Sao)',
     duration: '3 Ngày 2 Đêm',
+    durationDays: 3,
     image: 'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=800&auto=format&fit=crop&q=80',
     originalPrice: 9800000,
     comboPrice: 6850000,
     saving: 'Tiết kiệm 30%',
     badge: 'TOUR DI SẢN QUỐC TẾ',
     highlights: [
-      'Vé bay thẳng khứ hồi HAN ⇌ SAI với Cambodia Angkor Air',
-      '2 đêm tại khách sạn Sofitel phong cách Pháp thuộc địa cổ điển',
-      'Vé VIP đón bình minh tại đền Angkor Wat kèm hướng dẫn viên',
-      'Tặng 1 buổi liệu trình thư giãn Akoya Spa & trà chiều Khmer',
+      'Vé bay thẳng khứ hồi HAN ⇌ SAI Cambodia Angkor Air',
+      '2 đêm tại khách sạn Sofitel thuộc địa Pháp cổ điển',
+      'Vé VIP đón bình minh tại đền Angkor Wat kèm HDV',
+      'Tặng 1 liệu trình Akoya Spa & trà chiều Khmer',
       'Xe đưa đón riêng sân bay mới Siem Reap Angkor (SAI)'
     ]
   },
@@ -96,11 +107,14 @@ const COMBO_PACKAGES = [
     title: 'Combo Bangkok Mua Sắm & Chill Sông Chao Phraya 4N3Đ',
     titleEn: 'Bangkok Shopping & Riverfront Luxury 4D3N',
     titleKm: 'កញ្ចប់ដំណើរកម្សាន្តបាងកក ៤ថ្ងៃ៣យប់',
-    origin: 'TP. Hồ Chí Minh (SGN)',
-    destination: 'Bangkok (BKK)',
-    airline: 'Vietjet Air / Thai Airways',
+    origin: 'SGN',
+    originName: 'TP. Hồ Chí Minh (SGN)',
+    destination: 'BKK',
+    destinationName: 'Bangkok (BKK)',
+    airline: 'Vietjet Air',
     hotel: 'The Peninsula Bangkok Luxury Riverfront (5 Sao)',
     duration: '4 Ngày 3 Đêm',
+    durationDays: 4,
     image: 'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=800&auto=format&fit=crop&q=80',
     originalPrice: 11500000,
     comboPrice: 7990000,
@@ -108,9 +122,9 @@ const COMBO_PACKAGES = [
     badge: 'HOT TREND MÙA THU',
     highlights: [
       'Vé máy bay khứ hồi SGN ⇌ BKK Suvarnabhumi',
-      '3 đêm phòng Deluxe Riverview ngắm toàn cảnh sông Bangkok',
-      'Du thuyền riêng đưa đón miến phí sang trung tâm thương mại ICONSIAM',
-      'Bao gồm ăn sáng thượng hạng và quầy cocktail Sunset Sky Bar',
+      '3 đêm phòng Deluxe Riverview ngắm toàn cảnh sông',
+      'Thuyền riêng đưa đón miễn phí sang TTTM ICONSIAM',
+      'Bao gồm ăn sáng thượng hạng và quầy cocktail Sunset',
       'Đưa đón sân bay Suvarnabhumi bằng xe Toyota Camry VIP'
     ]
   }
@@ -123,13 +137,50 @@ export default function FlightHotelPage() {
   const isVi = language?.code === 'vi'
   const isKm = language?.code === 'km'
 
-  const [origin, setOrigin] = useState('HAN')
-  const [destination, setDestination] = useState('PQC')
+  // Search parameters
+  const [origin, setOrigin] = useState('ALL')
+  const [destination, setDestination] = useState('ALL')
   const [departureDate, setDepartureDate] = useState('2026-10-20')
   const [returnDate, setReturnDate] = useState('2026-10-23')
+
+  // Sidebar Filters
+  const [selectedAirlines, setSelectedAirlines] = useState([])
+  const [selectedDurations, setSelectedDurations] = useState([])
+  const [priceBucket, setPriceBucket] = useState('ALL')
+  const [sortBy, setSortBy] = useState('PRICE_ASC')
+
+  // Modal
   const [selectedCombo, setSelectedCombo] = useState(null)
   const [bookingSuccess, setBookingSuccess] = useState(null)
   const [leadGuest, setLeadGuest] = useState({ name: '', phone: '', email: '', passengers: 2 })
+
+  const resetFilters = () => {
+    setOrigin('ALL')
+    setDestination('ALL')
+    setSelectedAirlines([])
+    setSelectedDurations([])
+    setPriceBucket('ALL')
+    setSortBy('PRICE_ASC')
+  }
+
+  const filteredCombos = useMemo(() => {
+    return COMBO_PACKAGES.filter((combo) => {
+      if (origin !== 'ALL' && combo.origin !== origin) return false
+      if (destination !== 'ALL' && combo.destination !== destination) return false
+      if (selectedAirlines.length > 0 && !selectedAirlines.includes(combo.airline)) return false
+      if (selectedDurations.length > 0 && !selectedDurations.includes(combo.durationDays)) return false
+
+      if (priceBucket === 'UNDER_6M' && combo.comboPrice >= 6000000) return false
+      if (priceBucket === '6M_TO_10M' && (combo.comboPrice < 6000000 || combo.comboPrice > 10000000)) return false
+      if (priceBucket === 'OVER_10M' && combo.comboPrice <= 10000000) return false
+
+      return true
+    }).sort((a, b) => {
+      if (sortBy === 'PRICE_ASC') return a.comboPrice - b.comboPrice
+      if (sortBy === 'PRICE_DESC') return b.comboPrice - a.comboPrice
+      return b.originalPrice - a.originalPrice
+    })
+  }, [origin, destination, selectedAirlines, selectedDurations, priceBucket, sortBy])
 
   const handleOpenBooking = (combo) => {
     setSelectedCombo(combo)
@@ -157,29 +208,14 @@ export default function FlightHotelPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-navy-950 pb-20">
-      {/* 1. HERO HEADER */}
-      <section className="relative bg-gradient-to-br from-[#003580] via-[#004bb5] to-[#00224f] pt-8 pb-16 px-4 sm:px-6 lg:px-8 text-white">
-        <div className="mx-auto max-w-6xl space-y-4">
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-1 text-xs font-semibold text-sky-200 backdrop-blur-md">
-            <Globe className="h-3.5 w-3.5 text-amber-300" />
-            <span>AeroSmart Packages · Gói Combo Vé Máy Bay + Khách Sạn 5 Sao</span>
-          </div>
-
-          <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white">
-            {isVi ? 'Đặt Trọn Gói Máy Bay + Khách Sạn: Tiết Kiệm Đến 35%' : 'Flight + Hotel Packages: Save up to 35%'}
-          </h1>
-          <p className="text-xs sm:text-sm text-sky-100 max-w-2xl font-medium">
-            {isVi
-              ? 'Tận hưởng chuyến đi hoàn hảo không lo lắng với trọn bộ vé máy bay khứ hồi, khách sạn nghỉ dưỡng 5 sao, buffet sáng và xe đưa đón sân bay.'
-              : 'Complete vacation packages bundled with round-trip flights, 5-star luxury resorts, daily breakfast, and private airport transfers.'}
-          </p>
-
-          {/* Quick Filter Box */}
-          <div className="rounded-2xl border border-white/20 bg-white p-3 sm:p-4 shadow-2xl dark:bg-navy-900 text-slate-800 dark:text-white">
+    <div className="min-h-screen bg-slate-50 dark:bg-navy-950 pb-16">
+      {/* 1. TOP SEARCH BAR (FlightSearchPage Compact Style) */}
+      <div className="border-b border-slate-200 bg-white py-4 shadow-sm dark:border-navy-800 dark:bg-navy-900">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-3 sm:p-4 shadow-sm dark:border-navy-700 dark:bg-navy-850">
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 mb-1">
+                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
                   {isVi ? 'Điểm khởi hành' : 'Departure'}
                 </label>
                 <div className="relative flex items-center">
@@ -187,17 +223,17 @@ export default function FlightHotelPage() {
                   <select
                     value={origin}
                     onChange={(e) => setOrigin(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
+                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
                   >
+                    <option value="ALL">{isVi ? 'Tất cả điểm đi' : 'All Origins'}</option>
                     <option value="HAN">Hà Nội (HAN)</option>
                     <option value="SGN">TP. Hồ Chí Minh (SGN)</option>
-                    <option value="DAD">Đà Nẵng (DAD)</option>
                   </select>
                 </div>
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 mb-1">
+                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
                   {isVi ? 'Điểm đến nghỉ dưỡng' : 'Destination'}
                 </label>
                 <div className="relative flex items-center">
@@ -205,19 +241,20 @@ export default function FlightHotelPage() {
                   <select
                     value={destination}
                     onChange={(e) => setDestination(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
+                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
                   >
+                    <option value="ALL">{isVi ? 'Tất cả điểm đến' : 'All Destinations'}</option>
                     <option value="PQC">Phú Quốc (PQC)</option>
                     <option value="DAD">Đà Nẵng (DAD)</option>
-                    <option value="SAI">Siem Reap (SAI - Angkor)</option>
+                    <option value="SAI">Siem Reap (SAI)</option>
                     <option value="BKK">Bangkok (BKK)</option>
                   </select>
                 </div>
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 mb-1">
-                  {isVi ? 'Ngày đi' : 'Depart Date'}
+                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
+                  {isVi ? 'Ngày khởi hành' : 'Depart Date'}
                 </label>
                 <div className="relative flex items-center">
                   <Calendar className="absolute left-3 h-4 w-4 text-[#003580] dark:text-sky-400" />
@@ -225,13 +262,13 @@ export default function FlightHotelPage() {
                     type="date"
                     value={departureDate}
                     onChange={(e) => setDepartureDate(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
+                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 mb-1">
+                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
                   {isVi ? 'Số người đi' : 'Travelers'}
                 </label>
                 <div className="relative flex items-center">
@@ -239,10 +276,10 @@ export default function FlightHotelPage() {
                   <select
                     value={leadGuest.passengers}
                     onChange={(e) => setLeadGuest({ ...leadGuest, passengers: parseInt(e.target.value, 10) })}
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-9 pr-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
+                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
                   >
                     <option value={1}>1 {isVi ? 'khách' : 'guest'}</option>
-                    <option value={2}>2 {isVi ? 'khách (Đôi bạn / Vợ chồng)' : 'guests'}</option>
+                    <option value={2}>2 {isVi ? 'khách (Đôi bạn)' : 'guests'}</option>
                     <option value={4}>4 {isVi ? 'khách (Gia đình)' : 'guests'}</option>
                   </select>
                 </div>
@@ -250,104 +287,238 @@ export default function FlightHotelPage() {
             </div>
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* 2. COMBO PACKAGES CARDS */}
-      <section className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 mt-8">
-        <div className="mb-6">
-          <h2 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white">
-            {isVi ? 'Các Gói Combo Máy Bay + Khách Sạn Đang Ưu Đãi Khủng' : 'Featured Flight + Hotel Bundles'}
-          </h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
-            {isVi ? 'Đã bao gồm thuế, phí sân bay và dịch vụ đưa đón trọn gói' : 'Includes flight taxes, baggage, and luxury hotel stay'}
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {COMBO_PACKAGES.map((combo) => (
-            <div
-              key={combo.id}
-              className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm hover:shadow-xl transition-all duration-300 dark:border-navy-800 dark:bg-navy-900 flex flex-col justify-between"
-            >
-              <div>
-                {/* Photo & Badge */}
-                <div className="relative h-56 w-full overflow-hidden bg-slate-100 dark:bg-navy-800">
-                  <img
-                    src={combo.image}
-                    alt={combo.title}
-                    className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                  <div className="absolute top-3 left-3 flex flex-wrap gap-2">
-                    <span className="rounded-full bg-red-600 px-3 py-1 text-[11px] font-black text-white shadow-md">
-                      {combo.saving}
-                    </span>
-                    <span className="rounded-full bg-slate-900/80 backdrop-blur-md px-2.5 py-1 text-[10px] font-bold text-amber-300 shadow-md">
-                      {combo.badge}
-                    </span>
-                  </div>
-                  <div className="absolute bottom-3 right-3 rounded-xl bg-white/90 backdrop-blur-md px-3 py-1 text-xs font-black text-slate-900 shadow-md dark:bg-navy-900/90 dark:text-white">
-                    {combo.duration}
-                  </div>
+      {/* 2. MAIN 12-COLUMN LAYOUT (SIDEBAR FILTERS + RESULTS FEED) */}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pt-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          
+          {/* FILTERS SIDEBAR (3 Cols) */}
+          <aside className="lg:col-span-3 space-y-6">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-navy-800 dark:bg-navy-900">
+              <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-navy-800">
+                <div className="flex items-center gap-2">
+                  <Filter className="h-4 w-4 text-[#003580] dark:text-sky-400" />
+                  <span className="font-bold text-sm text-slate-900 dark:text-white">
+                    {isVi ? 'Bộ lọc Combo' : 'Combo Filters'}
+                  </span>
                 </div>
-
-                {/* Content */}
-                <div className="p-5 space-y-4">
-                  <div>
-                    <div className="flex items-center gap-2 text-xs font-bold text-[#003580] dark:text-sky-400 mb-1">
-                      <Plane className="h-3.5 w-3.5" />
-                      <span>{combo.origin} ⇌ {combo.destination}</span>
-                      <span>·</span>
-                      <span>{combo.airline}</span>
-                    </div>
-                    <h3 className="text-lg font-black text-slate-900 dark:text-white group-hover:text-[#003580] dark:group-hover:text-sky-400 transition-colors">
-                      {isVi ? combo.title : combo.titleEn}
-                    </h3>
-                    <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300 font-semibold mt-1">
-                      <Building2 className="h-3.5 w-3.5 text-amber-500" />
-                      <span>{combo.hotel}</span>
-                    </div>
-                  </div>
-
-                  {/* Highlights */}
-                  <div className="rounded-2xl bg-slate-50 p-3.5 dark:bg-navy-800/60 border border-slate-100 dark:border-navy-700/60 space-y-2">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 block">
-                      {isVi ? 'Đặc quyền gói combo bao gồm:' : 'Package inclusions:'}
-                    </span>
-                    <ul className="space-y-1.5 text-xs text-slate-700 dark:text-slate-200">
-                      {combo.highlights.map((h, i) => (
-                        <li key={i} className="flex items-start gap-2">
-                          <Check className="h-3.5 w-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                          <span>{h}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </div>
-              </div>
-
-              {/* Price & Book */}
-              <div className="p-5 pt-0 border-t border-slate-100 dark:border-navy-800 flex items-center justify-between mt-4">
-                <div>
-                  <span className="text-xs text-slate-400 line-through block">{formatPrice(combo.originalPrice)}</span>
-                  <div className="text-2xl font-black text-[#003580] dark:text-sky-400">
-                    {formatPrice(combo.comboPrice)}
-                  </div>
-                  <span className="text-[10px] text-slate-500 dark:text-slate-400">/ 1 người lớn (Trọn gói)</span>
-                </div>
-
                 <button
                   type="button"
-                  onClick={() => handleOpenBooking(combo)}
-                  className="flex items-center gap-2 rounded-2xl bg-[#003580] px-5 py-3 text-xs font-bold text-white shadow-md hover:bg-[#002660] dark:bg-sky-500 dark:text-navy-950 dark:hover:bg-sky-400 active:scale-95 transition-all"
+                  onClick={resetFilters}
+                  className="flex items-center gap-1 text-xs font-semibold text-[#006ce4] hover:underline dark:text-sky-400"
                 >
-                  <Sparkles className="h-3.5 w-3.5" />
-                  <span>{isVi ? 'Đặt Gói Combo' : 'Book Combo'}</span>
+                  <RotateCcw className="h-3 w-3" />
+                  <span>{isVi ? 'Đặt lại' : 'Reset'}</span>
                 </button>
               </div>
+
+              {/* Airlines */}
+              <div className="py-4 border-b border-slate-100 dark:border-navy-800 space-y-2.5">
+                <h4 className="font-bold text-xs text-slate-900 dark:text-white uppercase tracking-wider">
+                  {isVi ? 'Hãng hàng không' : 'Airlines'}
+                </h4>
+                {['Vietnam Airlines', 'Bamboo Airways', 'Cambodia Angkor Air', 'Vietjet Air'].map((airline) => {
+                  const isChecked = selectedAirlines.includes(airline)
+                  return (
+                    <label key={airline} className="flex items-center justify-between text-xs text-slate-800 dark:text-slate-200 cursor-pointer group">
+                      <div className="flex items-center gap-2.5">
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={(e) => {
+                            if (e.target.checked) setSelectedAirlines([...selectedAirlines, airline])
+                            else setSelectedAirlines(selectedAirlines.filter((a) => a !== airline))
+                          }}
+                          className="rounded text-[#006ce4] focus:ring-[#006ce4]"
+                        />
+                        <span className="font-medium">{airline}</span>
+                      </div>
+                    </label>
+                  )
+                })}
+              </div>
+
+              {/* Duration */}
+              <div className="py-4 border-b border-slate-100 dark:border-navy-800 space-y-2.5">
+                <h4 className="font-bold text-xs text-slate-900 dark:text-white uppercase tracking-wider">
+                  {isVi ? 'Thời gian hành trình' : 'Duration'}
+                </h4>
+                {[
+                  { days: 3, label: isVi ? '3 Ngày 2 Đêm' : '3 Days 2 Nights' },
+                  { days: 4, label: isVi ? '4 Ngày 3 Đêm' : '4 Days 3 Nights' }
+                ].map((d) => {
+                  const isChecked = selectedDurations.includes(d.days)
+                  return (
+                    <label key={d.days} className="flex items-center gap-2.5 text-xs text-slate-800 dark:text-slate-200 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={(e) => {
+                          if (e.target.checked) setSelectedDurations([...selectedDurations, d.days])
+                          else setSelectedDurations(selectedDurations.filter((dur) => dur !== d.days))
+                        }}
+                        className="rounded text-[#006ce4] focus:ring-[#006ce4]"
+                      />
+                      <span className="font-medium">{d.label}</span>
+                    </label>
+                  )
+                })}
+              </div>
+
+              {/* Price Range */}
+              <div className="pt-4 space-y-2.5">
+                <h4 className="font-bold text-xs text-slate-900 dark:text-white uppercase tracking-wider">
+                  {isVi ? 'Khoảng giá trọn gói' : 'Price per person'}
+                </h4>
+                {[
+                  { id: 'ALL', label: isVi ? 'Tất cả mức giá' : 'All Prices' },
+                  { id: 'UNDER_6M', label: isVi ? 'Dưới 6.000.000đ' : 'Under 6M VND' },
+                  { id: '6M_TO_10M', label: isVi ? '6.000.000đ - 10.000.000đ' : '6M - 10M VND' },
+                  { id: 'OVER_10M', label: isVi ? 'Trên 10.000.000đ (VIP)' : 'Over 10M VND' }
+                ].map((p) => (
+                  <label key={p.id} className="flex items-center gap-2.5 text-xs text-slate-800 dark:text-slate-200 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="comboPriceFilter"
+                      checked={priceBucket === p.id}
+                      onChange={() => setPriceBucket(p.id)}
+                      className="text-[#006ce4] focus:ring-[#006ce4]"
+                    />
+                    <span className="font-medium">{p.label}</span>
+                  </label>
+                ))}
+              </div>
             </div>
-          ))}
+          </aside>
+
+          {/* RESULTS FEED (9 Cols) */}
+          <section className="lg:col-span-9 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-sm dark:border-navy-800 dark:bg-navy-900">
+              <p className="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">
+                {isVi ? `Tìm thấy ${filteredCombos.length} gói combo máy bay + khách sạn ưu đãi` : `Found ${filteredCombos.length} vacation packages`}
+              </p>
+
+              <div className="flex items-center gap-2">
+                <ArrowUpDown className="h-4 w-4 text-slate-400" />
+                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
+                  {isVi ? 'Sắp xếp:' : 'Sort:'}
+                </span>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
+                >
+                  <option value="PRICE_ASC">{isVi ? 'Giá thấp nhất' : 'Price: Low to High'}</option>
+                  <option value="PRICE_DESC">{isVi ? 'Giá cao nhất' : 'Price: High to Low'}</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Cards Feed */}
+            {filteredCombos.length === 0 ? (
+              <div className="rounded-3xl border border-slate-200 bg-white p-12 text-center dark:border-navy-800 dark:bg-navy-900">
+                <Globe className="mx-auto h-12 w-12 text-slate-300 mb-3" />
+                <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                  {isVi ? 'Không tìm thấy gói combo phù hợp' : 'No packages match your filters'}
+                </h3>
+                <button
+                  type="button"
+                  onClick={resetFilters}
+                  className="mt-4 rounded-xl bg-[#003580] px-4 py-2 text-xs font-bold text-white dark:bg-sky-500 dark:text-navy-950"
+                >
+                  {isVi ? 'Xem tất cả gói combo' : 'Reset Filters'}
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {filteredCombos.map((combo) => (
+                  <div
+                    key={combo.id}
+                    className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm hover:shadow-lg transition-all duration-300 dark:border-navy-800 dark:bg-navy-900"
+                  >
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-0">
+                      {/* Photo */}
+                      <div className="relative md:col-span-4 h-56 md:h-auto overflow-hidden bg-slate-100 dark:bg-navy-800">
+                        <img
+                          src={combo.image}
+                          alt={combo.title}
+                          className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
+                          <span className="rounded-full bg-red-600 px-2.5 py-0.5 text-[10px] font-black text-white shadow-md uppercase">
+                            {combo.saving}
+                          </span>
+                          <span className="rounded-full bg-slate-900/80 backdrop-blur-md px-2 py-0.5 text-[10px] font-bold text-amber-300 shadow-md">
+                            {combo.badge}
+                          </span>
+                        </div>
+                        <div className="absolute bottom-3 right-3 rounded-xl bg-white/90 backdrop-blur-md px-2.5 py-0.5 text-[11px] font-bold text-slate-900 shadow-md dark:bg-navy-900/90 dark:text-white">
+                          {combo.duration}
+                        </div>
+                      </div>
+
+                      {/* Middle */}
+                      <div className="md:col-span-5 p-5 flex flex-col justify-between border-b md:border-b-0 md:border-r border-slate-100 dark:border-navy-800">
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-1.5 text-xs text-[#003580] dark:text-sky-400 font-bold">
+                            <Plane className="h-3.5 w-3.5" />
+                            <span>{combo.originName} ⇌ {combo.destinationName}</span>
+                          </div>
+                          <h3 className="text-base font-black text-slate-900 group-hover:text-[#003580] dark:text-white dark:group-hover:text-sky-400 transition-colors">
+                            {isVi ? combo.title : combo.titleEn}
+                          </h3>
+                          <div className="flex items-center gap-1.5 text-xs text-slate-600 dark:text-slate-300 font-semibold">
+                            <Building2 className="h-3.5 w-3.5 text-amber-500" />
+                            <span>{combo.hotel}</span>
+                          </div>
+
+                          {/* Inclusions */}
+                          <div className="pt-2 space-y-1">
+                            {combo.highlights.slice(0, 3).map((h, i) => (
+                              <div key={i} className="flex items-center gap-1.5 text-[11px] text-slate-600 dark:text-slate-300">
+                                <Check className="h-3 w-3 text-emerald-500 shrink-0" />
+                                <span className="line-clamp-1">{h}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="mt-4 pt-3 border-t border-slate-100 dark:border-navy-800 text-xs text-slate-500 dark:text-slate-400">
+                          <span>Hãng bay: </span>
+                          <strong className="text-slate-800 dark:text-slate-200">{combo.airline}</strong>
+                        </div>
+                      </div>
+
+                      {/* Right Price & Book */}
+                      <div className="md:col-span-3 p-5 flex flex-col justify-between bg-slate-50/50 dark:bg-navy-900/50">
+                        <div className="space-y-2 text-right">
+                          <span className="text-[11px] text-slate-400 line-through block">
+                            {formatPrice(combo.originalPrice)}
+                          </span>
+                          <div className="text-xl font-black text-[#003580] dark:text-sky-400">
+                            {formatPrice(combo.comboPrice)}
+                          </div>
+                          <span className="text-[10px] text-slate-500 block">/ 1 người lớn (Trọn gói)</span>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => handleOpenBooking(combo)}
+                          className="mt-4 w-full flex items-center justify-center gap-1.5 rounded-xl bg-[#003580] py-2.5 text-xs font-bold text-white shadow-md hover:bg-[#002660] dark:bg-sky-500 dark:text-navy-950 dark:hover:bg-sky-400 active:scale-95 transition-all"
+                        >
+                          <Sparkles className="h-3.5 w-3.5" />
+                          <span>{isVi ? 'Đặt Gói Combo' : 'Book Combo'}</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
         </div>
-      </section>
+      </div>
 
       {/* 3. BOOKING MODAL */}
       {selectedCombo && (
