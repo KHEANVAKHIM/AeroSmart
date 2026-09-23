@@ -42,6 +42,7 @@ public class DataInitializer implements CommandLineRunner {
     private final BookingRepository bookingRepository;
     private final PasswordEncoder passwordEncoder;
     private final FlightService flightService;
+    private final com.aerosmart.dao.GenericDao genericDao;
 
     @Override
     @Transactional
@@ -53,6 +54,11 @@ public class DataInitializer implements CommandLineRunner {
         seedSampleBookings();
         seedDestinationDeals();
         seedCountries();
+        seedHotels();
+        seedRentalCars();
+        seedTravelPackages();
+        seedAttractions();
+        seedAirportTaxis();
         log.info("AeroSmart demo data initialized successfully.");
     }
 
@@ -536,5 +542,362 @@ public class DataInitializer implements CommandLineRunner {
         );
         countrySpotlightRepository.saveAll(countries);
         log.info("Seeded initial country spotlights with Cambodia featured first.");
+    }
+
+    private void seedHotels() {
+        if (!genericDao.findAll(com.aerosmart.domain.Hotel.class).isEmpty()) return;
+
+        com.aerosmart.domain.Hotel h1 = com.aerosmart.domain.Hotel.builder()
+                .name("Vinpearl Resort & Spa Phú Quốc")
+                .nameEn("Vinpearl Resort & Spa Phu Quoc")
+                .nameKm("រីសត & ស្ប៉ា Vinpearl កោះត្រល់")
+                .location("Bãi Dài, Gành Dầu, Phú Quốc, Kiên Giang")
+                .city("Phú Quốc")
+                .country("Vietnam")
+                .stars(5)
+                .rating(4.9)
+                .reviewsCount(2450)
+                .pricePerNight(2850000L)
+                .originalPrice(3500000L)
+                .propertyType("RESORT")
+                .imageUrl("https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=1200&auto=format&fit=crop&q=80")
+                .description("Resort 5 sao ven bãi biển Bãi Dài với hồ bơi 5000m2 và khu vui chơi VinWonders liền kề.")
+                .amenities("Bãi biển riêng, Hồ bơi vô cực, Akoya Spa, Buffet sáng quốc tế, Đưa đón sân bay")
+                .highlights("Ngắm hoàng hôn Bãi Dài, Nhà hàng ẩm thực Á-Âu, Kid Club")
+                .isActive(true)
+                .build();
+
+        com.aerosmart.domain.HotelRoom r1 = com.aerosmart.domain.HotelRoom.builder()
+                .hotel(h1)
+                .name("Deluxe King Hướng Vườn")
+                .size("46m²")
+                .bedType("1 Giường King siêu lớn")
+                .price(2850000L)
+                .perks("Ăn sáng buffet, Miễn phí hủy phòng trước 3 ngày")
+                .maxGuests(2)
+                .availableCount(10)
+                .build();
+
+        com.aerosmart.domain.HotelRoom r2 = com.aerosmart.domain.HotelRoom.builder()
+                .hotel(h1)
+                .name("Deluxe Ocean View Hướng Biển")
+                .size("46m²")
+                .bedType("1 Giường King hoặc 2 Giường đơn")
+                .price(3450000L)
+                .perks("Ăn sáng buffet, Ban công view hoàng hôn, Đưa đón sân bay")
+                .maxGuests(2)
+                .availableCount(8)
+                .build();
+
+        h1.getRooms().add(r1);
+        h1.getRooms().add(r2);
+        genericDao.save(h1);
+
+        com.aerosmart.domain.Hotel h2 = com.aerosmart.domain.Hotel.builder()
+                .name("InterContinental Danang Sun Peninsula Resort")
+                .nameEn("InterContinental Danang Sun Peninsula Resort")
+                .nameKm("រីសត InterContinental ដាណាំង")
+                .location("Bán đảo Sơn Trà, Đà Nẵng")
+                .city("Đà Nẵng")
+                .country("Vietnam")
+                .stars(5)
+                .rating(5.0)
+                .reviewsCount(3120)
+                .pricePerNight(8900000L)
+                .originalPrice(10500000L)
+                .propertyType("LUXURY_VILLA")
+                .imageUrl("https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&auto=format&fit=crop&q=80")
+                .description("Kiệt tác nghỉ dưỡng của kiến trúc sư Bill Bensley trên bán đảo Sơn Trà.")
+                .amenities("Cáp treo Nam Tram riêng, Nhà hàng Michelin La Maison 1888, Bãi biển riêng tư, HARNN Heritage Spa")
+                .highlights("Resort sang trọng bậc nhất thế giới, Bồn tắm cẩm thạch view vịnh")
+                .isActive(true)
+                .build();
+
+        com.aerosmart.domain.HotelRoom r3 = com.aerosmart.domain.HotelRoom.builder()
+                .hotel(h2)
+                .name("Classic Ocean View Room")
+                .size("70m²")
+                .bedType("1 King Bed")
+                .price(8900000L)
+                .perks("Bao gồm bữa sáng Citron, View toàn cảnh vịnh Sơn Trà")
+                .maxGuests(2)
+                .availableCount(5)
+                .build();
+
+        h2.getRooms().add(r3);
+        genericDao.save(h2);
+
+        com.aerosmart.domain.Hotel h3 = com.aerosmart.domain.Hotel.builder()
+                .name("Raffles Grand Hotel d'Angkor")
+                .nameEn("Raffles Grand Hotel d'Angkor")
+                .nameKm("សណ្ឋាគារ Raffles Grand Angkor សៀមរាប")
+                .location("1 Vithei Charles de Gaulle, Siem Reap")
+                .city("Siem Reap")
+                .country("Cambodia")
+                .stars(5)
+                .rating(4.9)
+                .reviewsCount(1890)
+                .pricePerNight(5400000L)
+                .originalPrice(6500000L)
+                .propertyType("HERITAGE_HOTEL")
+                .imageUrl("https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=1200&auto=format&fit=crop&q=80")
+                .description("Biểu tượng khách sạn di sản Đông Dương từ năm 1932 gần quần thể Angkor Wat.")
+                .amenities("Hồ bơi hoàng cung lớn nhất Siem Reap, Thang máy cổ 1932, Raffles Spa")
+                .highlights("Cách Angkor Wat 10 phút, Quản gia riêng Raffles")
+                .isActive(true)
+                .build();
+
+        com.aerosmart.domain.HotelRoom r4 = com.aerosmart.domain.HotelRoom.builder()
+                .hotel(h3)
+                .name("State Room Garden View")
+                .size("42m²")
+                .bedType("1 King Bed")
+                .price(5400000L)
+                .perks("Ăn sáng hoàng gia, Quản gia riêng")
+                .maxGuests(2)
+                .availableCount(6)
+                .build();
+
+        h3.getRooms().add(r4);
+        genericDao.save(h3);
+        log.info("Seeded luxury hotels and room types.");
+    }
+
+    private void seedRentalCars() {
+        if (!genericDao.findAll(com.aerosmart.domain.RentalCar.class).isEmpty()) return;
+
+        genericDao.save(com.aerosmart.domain.RentalCar.builder()
+                .name("Toyota Camry 2.5Q Premium")
+                .code("car-sedan-camry")
+                .category("SEDAN")
+                .categoryLabel("Sedan 4-5 Chỗ Hạng Sang")
+                .seats(5)
+                .doors(4)
+                .bags(3)
+                .transmission("Tự động (Auto)")
+                .fuelType("Xăng / Hybrid")
+                .pricePerDay(1350000L)
+                .originalPrice(1650000L)
+                .imageUrl("https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=1200&auto=format&fit=crop&q=80")
+                .type("SELF_DRIVE")
+                .depositAmount(15000000L)
+                .rating(4.9)
+                .reviewsCount(184)
+                .features("Nội thất da, Cửa sổ trời, Âm thanh JBL, Camera 360")
+                .pickupLocations("Sân bay Nội Bài, Tân Sơn Nhất, Đà Nẵng")
+                .isAvailable(true)
+                .build());
+
+        genericDao.save(com.aerosmart.domain.RentalCar.builder()
+                .name("Ford Everest Titanium 4x4")
+                .code("car-suv-everest")
+                .category("SUV")
+                .categoryLabel("SUV 7 Chỗ Gầm Cao")
+                .seats(7)
+                .doors(5)
+                .bags(5)
+                .transmission("Tự động 10 cấp")
+                .fuelType("Dầu Diesel Bi-Turbo")
+                .pricePerDay(1750000L)
+                .originalPrice(2100000L)
+                .imageUrl("https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=1200&auto=format&fit=crop&q=80")
+                .type("SELF_DRIVE")
+                .depositAmount(20000000L)
+                .rating(4.9)
+                .reviewsCount(210)
+                .features("Dẫn động 4WD thông minh, Màn hình 12 inch SYNC4, Cửa sổ trời Panorama")
+                .pickupLocations("Sân bay Nội Bài, Tân Sơn Nhất, Đà Nẵng, Phú Quốc")
+                .isAvailable(true)
+                .build());
+
+        genericDao.save(com.aerosmart.domain.RentalCar.builder()
+                .name("DCar President VIP Limousine")
+                .code("car-limo-dcar")
+                .category("LIMOUSINE")
+                .categoryLabel("Limousine Thương Gia 9 Chỗ")
+                .seats(9)
+                .doors(4)
+                .bags(8)
+                .transmission("Tự động (Có tài xế riêng)")
+                .fuelType("Xăng / Diesel")
+                .pricePerDay(2950000L)
+                .originalPrice(3800000L)
+                .imageUrl("https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=1200&auto=format&fit=crop&q=80")
+                .type("WITH_DRIVER")
+                .depositAmount(0L)
+                .rating(5.0)
+                .reviewsCount(312)
+                .features("Ghế massage bọc da Nappa, TV Smart 32 inch, Wifi 5G, Bầu trời sao Rolls-Royce")
+                .pickupLocations("Đón sảnh VIP sân bay, Khách sạn theo yêu cầu")
+                .isAvailable(true)
+                .build());
+
+        log.info("Seeded rental cars fleet.");
+    }
+
+    private void seedTravelPackages() {
+        if (!genericDao.findAll(com.aerosmart.domain.TravelPackage.class).isEmpty()) return;
+
+        genericDao.save(com.aerosmart.domain.TravelPackage.builder()
+                .title("Combo Phú Quốc Thiên Đường 3N2Đ")
+                .titleEn("Phu Quoc Island Paradise Combo 3D2N")
+                .origin("Hà Nội (HAN)")
+                .destination("Phú Quốc (PQC)")
+                .flightRoute("HAN ⇄ PQC (Khứ hồi Vietnam Airlines)")
+                .hotelName("Vinpearl Resort & Spa Phú Quốc 5 Sao")
+                .roomType("Deluxe King Hướng Biển")
+                .duration("3 Ngày 2 Đêm")
+                .rating(4.9)
+                .reviewsCount(1420)
+                .pricePerPerson(4250000L)
+                .originalPrice(5800000L)
+                .savingBadge("Tiết kiệm 28%")
+                .imageUrl("https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=1200&auto=format&fit=crop&q=80")
+                .inclusions("Vé máy bay khứ hồi gồm 23kg ký gửi, 2 đêm resort 5 sao kèm buffet sáng, Xe đón tiễn sân bay 2 chiều")
+                .itinerary("Ngày 1: Bay đến Phú Quốc - Nhận phòng & Ngắm hoàng hôn; Ngày 2: Khám phá VinWonders & Safari; Ngày 3: Tắm biển & Tiễn sân bay")
+                .isActive(true)
+                .build());
+
+        genericDao.save(com.aerosmart.domain.TravelPackage.builder()
+                .title("Combo Đà Nẵng - Cầu Vàng Bà Nà Hills 4N3Đ")
+                .titleEn("Da Nang & Golden Bridge Ba Na Hills 4D3N")
+                .origin("TP. Hồ Chí Minh (SGN)")
+                .destination("Đà Nẵng (DAD)")
+                .flightRoute("SGN ⇄ DAD (Khứ hồi Bamboo Airways)")
+                .hotelName("TMS Hotel Da Nang Beach 5 Sao")
+                .roomType("Premier Ocean View")
+                .duration("4 Ngày 3 Đêm")
+                .rating(4.85)
+                .reviewsCount(980)
+                .pricePerPerson(3890000L)
+                .originalPrice(5200000L)
+                .savingBadge("Tiết kiệm 25%")
+                .imageUrl("https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=1200&auto=format&fit=crop&q=80")
+                .inclusions("Vé máy bay khứ hồi giờ đẹp, Khách sạn 5 sao mặt biển Mỹ Khê, Tặng vé cáp treo Bà Nà Hills")
+                .itinerary("Ngày 1: Bay đến Đà Nẵng - Biển Mỹ Khê; Ngày 2: Sun World Ba Na Hills & Cầu Vàng; Ngày 3: Phố cổ Hội An; Ngày 4: Chợ Cồn & Bay về")
+                .isActive(true)
+                .build());
+
+        log.info("Seeded travel combo packages.");
+    }
+
+    private void seedAttractions() {
+        if (!genericDao.findAll(com.aerosmart.domain.Attraction.class).isEmpty()) return;
+
+        com.aerosmart.domain.Attraction a1 = com.aerosmart.domain.Attraction.builder()
+                .title("Vé VIP Cáp Treo & Cầu Vàng Sun World Ba Na Hills")
+                .titleEn("Sun World Ba Na Hills Cable Car & Golden Bridge VIP Pass")
+                .titleKm("សំបុត្រទស្សនាស្ពានមាស Ba Na Hills ដាណាំង")
+                .city("Đà Nẵng")
+                .country("Vietnam")
+                .category("THEME_PARK")
+                .categoryLabel("Công viên giải trí")
+                .rating(4.9)
+                .reviewsCount(5820)
+                .duration("Cả ngày (08:00 - 18:00)")
+                .price(950000L)
+                .originalPrice(1200000L)
+                .imageUrl("https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?w=1200&auto=format&fit=crop&q=80")
+                .highlights("Cầu Vàng bàn tay khổng lồ, Tuyến cáp treo kỷ lục Guinness, Làng Pháp trung cổ")
+                .howToRedeem("Quét mã QR trực tiếp tại cổng kiểm soát vé tự động không cần đổi vé giấy.")
+                .isActive(true)
+                .build();
+
+        com.aerosmart.domain.AttractionTicket t1 = com.aerosmart.domain.AttractionTicket.builder()
+                .attraction(a1)
+                .name("Vé Cáp Treo Tiêu Chuẩn")
+                .price(950000L)
+                .description("Bao gồm cáp treo khứ hồi, Cầu Vàng, Làng Pháp, Fantasy Park")
+                .build();
+
+        com.aerosmart.domain.AttractionTicket t2 = com.aerosmart.domain.AttractionTicket.builder()
+                .attraction(a1)
+                .name("Combo Vé Cáp Treo + Buffet Trưa Quốc Tế")
+                .price(1250000L)
+                .description("Bao gồm cáp treo + Ăn trưa buffet Á-Âu không giới hạn")
+                .build();
+
+        a1.getTickets().add(t1);
+        a1.getTickets().add(t2);
+        genericDao.save(a1);
+
+        com.aerosmart.domain.Attraction a2 = com.aerosmart.domain.Attraction.builder()
+                .title("Tour Đón Bình Minh Huyền Ảo & Khám Phá Quần Thể Angkor Wat")
+                .titleEn("Angkor Wat Sunrise Guided Heritage Tour & Angkor Thom")
+                .titleKm("ដំណើរកម្សាន្តទស្សនាថ្ងៃរះនៅប្រាសាទអង្គរវត្ត")
+                .city("Siem Reap")
+                .country("Cambodia")
+                .category("CULTURAL_TOUR")
+                .categoryLabel("Tour văn hóa & di sản")
+                .rating(5.0)
+                .reviewsCount(4120)
+                .duration("8 giờ (04:30 - 13:00)")
+                .price(890000L)
+                .originalPrice(1150000L)
+                .imageUrl("https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=1200&auto=format&fit=crop&q=80")
+                .highlights("Bình minh phản chiếu hồ sen Angkor Wat, Đền Bayon nụ cười đá, Đền Ta Prohm rễ cây đại thụ")
+                .howToRedeem("Hướng dẫn viên đón tận khách sạn lúc 04:30 sáng.")
+                .isActive(true)
+                .build();
+
+        com.aerosmart.domain.AttractionTicket t3 = com.aerosmart.domain.AttractionTicket.builder()
+                .attraction(a2)
+                .name("Tour Ghép Đoàn Đón Bình Minh (Bao gồm xe + HDV)")
+                .price(890000L)
+                .description("Đón tại khách sạn 04:30 sáng, xe máy lạnh, HDV tiếng Việt/Anh, nước suối")
+                .build();
+
+        a2.getTickets().add(t3);
+        genericDao.save(a2);
+
+        log.info("Seeded attractions and ticket options.");
+    }
+
+    private void seedAirportTaxis() {
+        if (!genericDao.findAll(com.aerosmart.domain.AirportTaxi.class).isEmpty()) return;
+
+        genericDao.save(com.aerosmart.domain.AirportTaxi.builder()
+                .name("Standard Taxi 4 Chỗ (Toyota Vios / Hyundai Accent)")
+                .code("taxi-standard-4")
+                .category("SEDAN")
+                .categoryLabel("Tiêu chuẩn 4 chỗ")
+                .seats(4)
+                .bags(2)
+                .baseFare(280000L)
+                .originalFare(350000L)
+                .imageUrl("https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&auto=format&fit=crop&q=80")
+                .tags("Tài xế đón tại sảnh đến, Miễn phí chờ 45 phút, Đã gồm phí cầu đường")
+                .isAvailable(true)
+                .build());
+
+        genericDao.save(com.aerosmart.domain.AirportTaxi.builder()
+                .name("Premium SUV 7 Chỗ (Toyota Fortuner / Mitsubishi Xpander)")
+                .code("taxi-premium-suv")
+                .category("SUV")
+                .categoryLabel("Gia đình & Nhóm 7 chỗ")
+                .seats(7)
+                .bags(4)
+                .baseFare(420000L)
+                .originalFare(520000L)
+                .imageUrl("https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&auto=format&fit=crop&q=80")
+                .tags("Khoang hành lý rộng rãi, Miễn phí chờ 60 phút, Nước suối & khăn lạnh")
+                .isAvailable(true)
+                .build());
+
+        genericDao.save(com.aerosmart.domain.AirportTaxi.builder()
+                .name("VIP DCar President Limousine 9 Chỗ")
+                .code("taxi-limo-vip")
+                .category("LIMOUSINE")
+                .categoryLabel("Thương gia VIP 9 chỗ")
+                .seats(9)
+                .bags(7)
+                .baseFare(850000L)
+                .originalFare(1100000L)
+                .imageUrl("https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=800&auto=format&fit=crop&q=80")
+                .tags("Ghế massage bọc da cao cấp, Biển đón tên tại cửa ga ra, Đẳng cấp đối tác")
+                .isAvailable(true)
+                .build());
+
+        log.info("Seeded airport taxis fleet.");
     }
 }
