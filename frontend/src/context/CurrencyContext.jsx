@@ -62,7 +62,7 @@ export function CurrencyProvider({ children }) {
    * Converts an amount from a given base currency (default 'USD' or 'VND')
    * into the currently selected currency, and returns a formatted string.
    */
-  const formatPrice = (amount, baseCurrency = 'USD', options = {}) => {
+  const formatPrice = (amount, baseCurrency = 'VND', options = {}) => {
     const numericAmount = Number(amount)
     if (!Number.isFinite(numericAmount) || numericAmount === 0) {
       if (currentCurrency.code === 'USD') return '$0'
@@ -72,7 +72,7 @@ export function CurrencyProvider({ children }) {
 
     // Convert from base currency to USD first
     let amountInUSD = numericAmount
-    const base = SUPPORTED_CURRENCIES.find((c) => c.code === baseCurrency) || SUPPORTED_CURRENCIES[0]
+    const base = SUPPORTED_CURRENCIES.find((c) => c.code === baseCurrency) || SUPPORTED_CURRENCIES.find((c) => c.code === 'VND')
     if (base.code !== 'USD') {
       amountInUSD = numericAmount / base.rateFromUSD
     }
