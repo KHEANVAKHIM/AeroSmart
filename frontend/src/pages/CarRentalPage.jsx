@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState, useMemo, useEffect } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import {
   Car,
   MapPin,
@@ -38,7 +38,9 @@ const CAR_FLEET = [
     originalPrice: 1650000,
     image: 'https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=800&auto=format&fit=crop&q=80',
     tags: ['Nội thất da cao cấp', 'Cửa sổ trời', 'Giao xe tại sân bay miễn phí'],
-    type: 'SELF_DRIVE'
+    type: 'SELF_DRIVE',
+    airports: ['HAN_AIRPORT', 'SGN_AIRPORT', 'DAD_AIRPORT', 'PQC_AIRPORT', 'SAI_AIRPORT'],
+    locationName: 'Nội Bài (HAN) · Tân Sơn Nhất (SGN) · Đà Nẵng (DAD)'
   },
   {
     id: 'car-suv-everest',
@@ -53,7 +55,9 @@ const CAR_FLEET = [
     originalPrice: 2100000,
     image: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&auto=format&fit=crop&q=80',
     tags: ['Chống lật & 7 túi khí', 'Cốp điện thông minh', 'Thích hợp địa hình du lịch'],
-    type: 'SELF_DRIVE'
+    type: 'SELF_DRIVE',
+    airports: ['HAN_AIRPORT', 'SGN_AIRPORT', 'DAD_AIRPORT', 'PQC_AIRPORT'],
+    locationName: 'Nội Bài (HAN) · Tân Sơn Nhất (SGN) · Phú Quốc (PQC)'
   },
   {
     id: 'car-limo-dcar',
@@ -68,7 +72,9 @@ const CAR_FLEET = [
     originalPrice: 3800000,
     image: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&auto=format&fit=crop&q=80',
     tags: ['Ghế massage thư giãn', 'TV Smart 32 inch + Wifi 5G', 'Bao gồm tài xế chuyên nghiệp'],
-    type: 'WITH_DRIVER'
+    type: 'WITH_DRIVER',
+    airports: ['HAN_AIRPORT', 'SGN_AIRPORT', 'DAD_AIRPORT', 'SAI_AIRPORT'],
+    locationName: 'Nội Bài (HAN) · Tân Sơn Nhất (SGN) · Siem Reap (SAI)'
   },
   {
     id: 'car-merc-glc',
@@ -83,7 +89,9 @@ const CAR_FLEET = [
     originalPrice: 4000000,
     image: 'https://images.unsplash.com/photo-1618843479313-40f8afb4b4d8?w=800&auto=format&fit=crop&q=80',
     tags: ['Âm thanh vòm Burmester', 'Cửa sổ trời Panorama', 'Đẳng cấp doanh nhân'],
-    type: 'SELF_DRIVE'
+    type: 'SELF_DRIVE',
+    airports: ['HAN_AIRPORT', 'SGN_AIRPORT'],
+    locationName: 'Sân bay Nội Bài (HAN) & Tân Sơn Nhất (SGN)'
   },
   {
     id: 'car-van-solati',
@@ -98,21 +106,35 @@ const CAR_FLEET = [
     originalPrice: 3200000,
     image: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=800&auto=format&fit=crop&q=80',
     tags: ['Trần cao thoáng mát', 'Khoang hành lý siêu rộng', 'Bao gồm tài xế & xăng dầu'],
-    type: 'WITH_DRIVER'
+    type: 'WITH_DRIVER',
+    airports: ['HAN_AIRPORT', 'SGN_AIRPORT', 'DAD_AIRPORT', 'PQC_AIRPORT', 'SAI_AIRPORT'],
+    locationName: 'Tất cả các sân bay lớn Việt Nam & Campuchia'
   }
 ]
 
 export default function CarRentalPage() {
   const { formatPrice } = useCurrency()
   const { language } = useLanguage()
+  const [searchParams] = useSearchParams()
 
   const isVi = language?.code === 'vi'
   const isKm = language?.code === 'km'
 
+  const locationParam = searchParams.get('location') || 'ALL'
+  const pickDateParam = searchParams.get('pickDate') || '2026-10-15'
+  const dropDateParam = searchParams.get('dropDate') || '2026-10-18'
+
   // Search parameters
-  const [pickupCity, setPickupCity] = useState('HAN_AIRPORT')
-  const [pickupDate, setPickupDate] = useState('2026-10-15')
-  const [returnDate, setReturnDate] = useState('2026-10-18')
+  const [pickupCity, setPickupCity] = useState(locationParam)
+  const [pickupDate, setPickupDate] = useState(pickDateParam)
+  const [returnDate, setReturnDate] = useState(dropDateParam)
+
+  // Sync params if URL changes
+  useEffect(() => {
+    if (searchParams.get('location')) {
+      setPickupCity(searchParams.get('location'))
+    }
+  }, [searchParams])
 
   // Sidebar Filters
   const [selectedDriverTypes, setSelectedDriverTypes] = useState([])
@@ -126,6 +148,7 @@ export default function CarRentalPage() {
   const [renterInfo, setRenterInfo] = useState({ name: '', phone: '', driverOption: 'SELF_DRIVE' })
 
   const resetFilters = () => {
+    setPickupCity('ALL')
     setSelectedDriverTypes([])
     setSelectedCategories([])
     setSelectedSeats([])
@@ -134,6 +157,10 @@ export default function CarRentalPage() {
 
   const filteredCars = useMemo(() => {
     return CAR_FLEET.filter((car) => {
+      // Filter by Pickup Location / Airport
+      if (pickupCity && pickupCity !== 'ALL' && !car.airports.includes(pickupCity)) {
+        return false
+      }
       if (selectedDriverTypes.length > 0 && !selectedDriverTypes.includes(car.type)) return false
       if (selectedCategories.length > 0 && !selectedCategories.includes(car.category)) return false
       if (selectedSeats.length > 0 && !selectedSeats.includes(car.seats)) return false
@@ -143,7 +170,7 @@ export default function CarRentalPage() {
       if (sortBy === 'PRICE_DESC') return b.pricePerDay - a.pricePerDay
       return a.seats - b.seats
     })
-  }, [selectedDriverTypes, selectedCategories, selectedSeats, sortBy])
+  }, [pickupCity, selectedDriverTypes, selectedCategories, selectedSeats, sortBy])
 
   const handleOpenBooking = (car) => {
     setSelectedCar(car)
@@ -187,20 +214,21 @@ export default function CarRentalPage() {
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-12 items-end">
               <div className="lg:col-span-4">
                 <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
-                  {isVi ? 'Địa điểm nhận xe' : 'Pickup Location'}
+                  {isVi ? 'Địa điểm nhận xe (Pickup Location)' : 'Pickup Location'}
                 </label>
                 <div className="relative flex items-center">
                   <MapPin className="absolute left-3 h-4 w-4 text-[#003580] dark:text-sky-400" />
                   <select
                     value={pickupCity}
                     onChange={(e) => setPickupCity(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
+                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white cursor-pointer"
                   >
-                    <option value="HAN_AIRPORT">Sân bay Nội Bài (Hà Nội)</option>
-                    <option value="SGN_AIRPORT">Sân bay Tân Sơn Nhất (TP.HCM)</option>
-                    <option value="DAD_AIRPORT">Sân bay Đà Nẵng</option>
-                    <option value="PQC_AIRPORT">Sân bay Phú Quốc</option>
-                    <option value="SAI_AIRPORT">Sân bay Siem Reap (SAI)</option>
+                    <option value="ALL">{isVi ? 'Tất cả địa điểm nhận xe' : 'All Pickup Locations'}</option>
+                    <option value="HAN_AIRPORT">Sân bay Quốc tế Nội Bài (Hà Nội - HAN)</option>
+                    <option value="SGN_AIRPORT">Sân bay Quốc tế Tân Sơn Nhất (TP.HCM - SGN)</option>
+                    <option value="DAD_AIRPORT">Sân bay Quốc tế Đà Nẵng (DAD)</option>
+                    <option value="PQC_AIRPORT">Sân bay Quốc tế Phú Quốc (PQC)</option>
+                    <option value="SAI_AIRPORT">Sân bay Siem Reap Angkor (Campuchia - SAI)</option>
                   </select>
                 </div>
               </div>

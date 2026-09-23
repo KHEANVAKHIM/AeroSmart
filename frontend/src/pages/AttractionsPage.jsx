@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState, useMemo, useEffect } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import {
   Compass,
   MapPin,
@@ -113,13 +113,21 @@ const ATTRACTIONS = [
 export default function AttractionsPage() {
   const { formatPrice } = useCurrency()
   const { language } = useLanguage()
+  const [searchParams] = useSearchParams()
 
   const isVi = language?.code === 'vi'
   const isKm = language?.code === 'km'
 
+  const queryParam = searchParams.get('query') || searchParams.get('location') || ''
+
   // Search parameters
-  const [searchLocation, setSearchLocation] = useState('')
+  const [searchLocation, setSearchLocation] = useState(queryParam)
   const [tourDate, setTourDate] = useState('2026-10-18')
+
+  useEffect(() => {
+    const q = searchParams.get('query') || searchParams.get('location')
+    if (q) setSearchLocation(q)
+  }, [searchParams])
 
   // Sidebar Filters
   const [selectedCities, setSelectedCities] = useState([])

@@ -1,4 +1,5 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import {
   Car,
   Plane,
@@ -35,7 +36,8 @@ const AIRPORT_TAXI_FLEETS = [
     baseFare: 280000,
     originalFare: 350000,
     image: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?w=800&auto=format&fit=crop&q=80',
-    tags: ['Tài xế đón tại sảnh đến', 'Miễn phí chờ 45 phút', 'Đã gồm phí cầu đường']
+    tags: ['Tài xế đón tại sảnh đến', 'Miễn phí chờ 45 phút', 'Đã gồm phí cầu đường'],
+    airports: ['HAN', 'SGN', 'DAD', 'PQC', 'SAI', 'BKK']
   },
   {
     id: 'taxi-premium-suv',
@@ -47,7 +49,8 @@ const AIRPORT_TAXI_FLEETS = [
     baseFare: 420000,
     originalFare: 520000,
     image: 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=800&auto=format&fit=crop&q=80',
-    tags: ['Khoang hành lý rộng rãi', 'Miễn phí chờ 60 phút', 'Nước suối & khăn lạnh']
+    tags: ['Khoang hành lý rộng rãi', 'Miễn phí chờ 60 phút', 'Nước suối & khăn lạnh'],
+    airports: ['HAN', 'SGN', 'DAD', 'PQC', 'SAI', 'BKK']
   },
   {
     id: 'taxi-limo-vip',
@@ -59,23 +62,34 @@ const AIRPORT_TAXI_FLEETS = [
     baseFare: 850000,
     originalFare: 1100000,
     image: 'https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=800&auto=format&fit=crop&q=80',
-    tags: ['Ghế massage bọc da cao cấp', 'Biển đón tên tại cửa ga ra', 'Đẳng cấp đối tác']
+    tags: ['Ghế massage bọc da cao cấp', 'Biển đón tên tại cửa ga ra', 'Đẳng cấp đối tác'],
+    airports: ['HAN', 'SGN', 'DAD', 'PQC', 'SAI']
   }
 ]
 
 export default function AirportTaxisPage() {
   const { formatPrice } = useCurrency()
   const { language } = useLanguage()
+  const [searchParams] = useSearchParams()
 
   const isVi = language?.code === 'vi'
   const isKm = language?.code === 'km'
 
+  const airportParam = searchParams.get('airport') || 'HAN'
+  const addressParam = searchParams.get('address') || 'Quận Hoàn Kiếm, Hà Nội'
+
   // Search parameters
   const [tripDirection, setTripDirection] = useState('FROM_AIRPORT')
-  const [airport, setAirport] = useState('HAN')
-  const [destinationAddress, setDestinationAddress] = useState('Quận Hoàn Kiếm, Hà Nội')
+  const [airport, setAirport] = useState(airportParam)
+  const [destinationAddress, setDestinationAddress] = useState(addressParam)
   const [flightNumber, setFlightNumber] = useState('VN216')
   const [pickupDateTime, setPickupDateTime] = useState('2026-10-15T14:30')
+
+  // Sync if URL query params change
+  useEffect(() => {
+    if (searchParams.get('airport')) setAirport(searchParams.get('airport'))
+    if (searchParams.get('address')) setDestinationAddress(searchParams.get('address'))
+  }, [searchParams])
 
   // Sidebar Filters
   const [selectedCategories, setSelectedCategories] = useState([])
@@ -88,6 +102,7 @@ export default function AirportTaxisPage() {
   const [bookingSuccess, setBookingSuccess] = useState(null)
 
   const resetFilters = () => {
+    setAirport('ALL')
     setSelectedCategories([])
     setSelectedSeats([])
     setSortBy('PRICE_ASC')
@@ -95,6 +110,10 @@ export default function AirportTaxisPage() {
 
   const filteredTaxis = useMemo(() => {
     return AIRPORT_TAXI_FLEETS.filter((taxi) => {
+      // Filter by Airport Location
+      if (airport && airport !== 'ALL' && !taxi.airports.includes(airport)) {
+        return false
+      }
       if (selectedCategories.length > 0 && !selectedCategories.includes(taxi.category)) return false
       if (selectedSeats.length > 0 && !selectedSeats.includes(taxi.seats)) return false
       return true
@@ -103,7 +122,7 @@ export default function AirportTaxisPage() {
       if (sortBy === 'PRICE_DESC') return b.baseFare - a.baseFare
       return a.seats - b.seats
     })
-  }, [selectedCategories, selectedSeats, sortBy])
+  }, [airport, selectedCategories, selectedSeats, sortBy])
 
   const handleOpenBooking = (taxi) => {
     setSelectedTaxi(taxi)
@@ -173,15 +192,16 @@ export default function AirportTaxisPage() {
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-12 items-end">
               <div className="lg:col-span-3">
                 <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
-                  {isVi ? 'Sân bay' : 'Airport'}
+                  {isVi ? 'Sân bay đón/trả' : 'Airport'}
                 </label>
                 <div className="relative flex items-center">
                   <Plane className="absolute left-3 h-4 w-4 text-[#003580] dark:text-sky-400" />
                   <select
                     value={airport}
                     onChange={(e) => setAirport(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
+                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white cursor-pointer"
                   >
+                    <option value="ALL">{isVi ? 'Tất cả các sân bay' : 'All Airports'}</option>
                     <option value="HAN">Nội Bài (Hà Nội - HAN)</option>
                     <option value="SGN">Tân Sơn Nhất (TP.HCM - SGN)</option>
                     <option value="DAD">Đà Nẵng (DAD)</option>

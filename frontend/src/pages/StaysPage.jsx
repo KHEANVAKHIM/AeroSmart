@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState, useMemo, useEffect } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import {
   Building2,
   MapPin,
@@ -187,15 +187,24 @@ const LUXURY_HOTELS = [
 export default function StaysPage() {
   const { formatPrice } = useCurrency()
   const { language } = useLanguage()
+  const [searchParams] = useSearchParams()
 
   const isVi = language?.code === 'vi'
   const isKm = language?.code === 'km'
 
+  const destParam = searchParams.get('destination') || ''
+
   // Search parameters
-  const [destination, setDestination] = useState('')
+  const [destination, setDestination] = useState(destParam)
   const [checkInDate, setCheckInDate] = useState('2026-10-15')
   const [checkOutDate, setCheckOutDate] = useState('2026-10-18')
   const [guestCount, setGuestCount] = useState('2 người lớn, 1 phòng')
+
+  useEffect(() => {
+    if (searchParams.get('destination')) {
+      setDestination(searchParams.get('destination'))
+    }
+  }, [searchParams])
 
   // Sidebar Filters
   const [selectedCities, setSelectedCities] = useState([])
