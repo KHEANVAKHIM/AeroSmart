@@ -223,9 +223,9 @@ export default function FlightHotelPage() {
           </h1>
 
           <div className="rounded-2xl border border-white/20 bg-white p-3 sm:p-4 shadow-2xl dark:bg-navy-900 text-slate-800 dark:text-white">
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-12 items-end">
+              <div className="lg:col-span-3">
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
                   {isVi ? 'Điểm khởi hành' : 'Departure'}
                 </label>
                 <div className="relative flex items-center">
@@ -233,7 +233,7 @@ export default function FlightHotelPage() {
                   <select
                     value={origin}
                     onChange={(e) => setOrigin(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
+                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
                   >
                     <option value="ALL">{isVi ? 'Tất cả điểm đi' : 'All Origins'}</option>
                     <option value="HAN">Hà Nội (HAN)</option>
@@ -242,8 +242,8 @@ export default function FlightHotelPage() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
+              <div className="lg:col-span-3">
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
                   {isVi ? 'Điểm đến nghỉ dưỡng' : 'Destination'}
                 </label>
                 <div className="relative flex items-center">
@@ -251,7 +251,7 @@ export default function FlightHotelPage() {
                   <select
                     value={destination}
                     onChange={(e) => setDestination(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
+                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
                   >
                     <option value="ALL">{isVi ? 'Tất cả điểm đến' : 'All Destinations'}</option>
                     <option value="PQC">Phú Quốc (PQC)</option>
@@ -262,9 +262,9 @@ export default function FlightHotelPage() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
-                  {isVi ? 'Ngày khởi hành' : 'Depart Date'}
+              <div className="lg:col-span-2">
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
+                  {isVi ? 'Khởi hành' : 'Depart Date'}
                 </label>
                 <div className="relative flex items-center">
                   <Calendar className="absolute left-3 h-4 w-4 text-[#003580] dark:text-sky-400" />
@@ -272,27 +272,42 @@ export default function FlightHotelPage() {
                     type="date"
                     value={departureDate}
                     onChange={(e) => setDepartureDate(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
+                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-2 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
                   />
                 </div>
               </div>
 
-              <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
-                  {isVi ? 'Số người đi' : 'Travelers'}
+              <div className="lg:col-span-2">
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
+                  {isVi ? 'Số người' : 'Travelers'}
                 </label>
                 <div className="relative flex items-center">
                   <Users className="absolute left-3 h-4 w-4 text-[#003580] dark:text-sky-400" />
                   <select
                     value={leadGuest.passengers}
                     onChange={(e) => setLeadGuest({ ...leadGuest, passengers: parseInt(e.target.value, 10) })}
-                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
+                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-2 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
                   >
                     <option value={1}>1 {isVi ? 'khách' : 'guest'}</option>
                     <option value={2}>2 {isVi ? 'khách (Đôi bạn)' : 'guests'}</option>
                     <option value={4}>4 {isVi ? 'khách (Gia đình)' : 'guests'}</option>
                   </select>
                 </div>
+              </div>
+
+              {/* SEARCH BUTTON */}
+              <div className="lg:col-span-2 sm:col-span-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const el = document.getElementById('combo-results-section')
+                    if (el) el.scrollIntoView({ behavior: 'smooth' })
+                  }}
+                  className="w-full h-[42px] flex items-center justify-center gap-2 rounded-xl bg-[#006ce4] hover:bg-[#0057b8] active:scale-95 text-white font-black text-sm shadow-md transition-all dark:bg-sky-500 dark:text-navy-950 dark:hover:bg-sky-400"
+                >
+                  <Search className="h-4 w-4 stroke-[2.5]" />
+                  <span>{isVi ? 'Tìm Combo' : 'Search'}</span>
+                </button>
               </div>
             </div>
           </div>

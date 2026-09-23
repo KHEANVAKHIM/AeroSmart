@@ -18,7 +18,8 @@ import {
   Info,
   Filter,
   ArrowUpDown,
-  RotateCcw
+  RotateCcw,
+  Search
 } from 'lucide-react'
 import { useCurrency } from '../context/CurrencyContext'
 import { useLanguage } from '../context/LanguageContext'
@@ -169,9 +170,9 @@ export default function AirportTaxisPage() {
               </button>
             </div>
 
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-12 items-end">
+              <div className="lg:col-span-3">
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
                   {isVi ? 'Sân bay' : 'Airport'}
                 </label>
                 <div className="relative flex items-center">
@@ -179,7 +180,7 @@ export default function AirportTaxisPage() {
                   <select
                     value={airport}
                     onChange={(e) => setAirport(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
+                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
                   >
                     <option value="HAN">Nội Bài (Hà Nội - HAN)</option>
                     <option value="SGN">Tân Sơn Nhất (TP.HCM - SGN)</option>
@@ -191,9 +192,9 @@ export default function AirportTaxisPage() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
-                  {isVi ? 'Địa chỉ khách sạn / Điểm đến' : 'Hotel / Address'}
+              <div className="lg:col-span-3">
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
+                  {isVi ? 'Điểm đến / Khách sạn' : 'Destination'}
                 </label>
                 <div className="relative flex items-center">
                   <MapPin className="absolute left-3 h-4 w-4 text-[#003580] dark:text-sky-400" />
@@ -202,14 +203,14 @@ export default function AirportTaxisPage() {
                     value={destinationAddress}
                     onChange={(e) => setDestinationAddress(e.target.value)}
                     placeholder={isVi ? 'Số nhà, tên đường...' : 'Hotel or street...'}
-                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
+                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
                   />
                 </div>
               </div>
 
-              <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
-                  {isVi ? 'Mã chuyến bay theo dõi' : 'Flight Number'}
+              <div className="lg:col-span-2">
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
+                  {isVi ? 'Số hiệu bay' : 'Flight #'}
                 </label>
                 <div className="relative flex items-center">
                   <Navigation className="absolute left-3 h-4 w-4 text-[#003580] dark:text-sky-400" />
@@ -217,15 +218,15 @@ export default function AirportTaxisPage() {
                     type="text"
                     value={flightNumber}
                     onChange={(e) => setFlightNumber(e.target.value.toUpperCase())}
-                    placeholder="VN216, VJ135..."
-                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white uppercase"
+                    placeholder="VN216..."
+                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-2 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white uppercase"
                   />
                 </div>
               </div>
 
-              <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
-                  {isVi ? 'Ngày & Giờ đón' : 'Pickup Time'}
+              <div className="lg:col-span-2">
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
+                  {isVi ? 'Giờ đón' : 'Pickup Time'}
                 </label>
                 <div className="relative flex items-center">
                   <Clock className="absolute left-3 h-4 w-4 text-[#003580] dark:text-sky-400" />
@@ -233,9 +234,24 @@ export default function AirportTaxisPage() {
                     type="datetime-local"
                     value={pickupDateTime}
                     onChange={(e) => setPickupDateTime(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
+                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-2 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
                   />
                 </div>
+              </div>
+
+              {/* SEARCH BUTTON */}
+              <div className="lg:col-span-2 sm:col-span-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const el = document.getElementById('taxi-results-section')
+                    if (el) el.scrollIntoView({ behavior: 'smooth' })
+                  }}
+                  className="w-full h-[42px] flex items-center justify-center gap-2 rounded-xl bg-[#006ce4] hover:bg-[#0057b8] active:scale-95 text-white font-black text-sm shadow-md transition-all dark:bg-sky-500 dark:text-navy-950 dark:hover:bg-sky-400"
+                >
+                  <Search className="h-4 w-4 stroke-[2.5]" />
+                  <span>{isVi ? 'Tìm Taxi' : 'Search'}</span>
+                </button>
               </div>
             </div>
           </div>

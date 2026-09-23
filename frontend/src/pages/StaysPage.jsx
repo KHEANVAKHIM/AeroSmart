@@ -297,9 +297,9 @@ export default function StaysPage() {
           </h1>
 
           <div className="rounded-2xl border border-white/20 bg-white p-3 sm:p-4 shadow-2xl dark:bg-navy-900 text-slate-800 dark:text-white">
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-12 items-end">
               {/* Destination */}
-              <div>
+              <div className="lg:col-span-4">
                 <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
                   {isVi ? 'Điểm đến / Tên khách sạn' : 'Destination / Hotel'}
                 </label>
@@ -310,15 +310,15 @@ export default function StaysPage() {
                     value={destination}
                     onChange={(e) => setDestination(e.target.value)}
                     placeholder={isVi ? 'Phú Quốc, Đà Nẵng, Siem Reap...' : 'City, hotel or beach...'}
-                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
+                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
                   />
                 </div>
               </div>
 
               {/* Check-in Date */}
-              <div>
+              <div className="lg:col-span-2">
                 <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
-                  {isVi ? 'Ngày nhận phòng' : 'Check-in'}
+                  {isVi ? 'Nhận phòng' : 'Check-in'}
                 </label>
                 <div className="relative flex items-center">
                   <Calendar className="absolute left-3 h-4 w-4 text-[#003580] dark:text-sky-400" />
@@ -326,15 +326,15 @@ export default function StaysPage() {
                     type="date"
                     value={checkInDate}
                     onChange={(e) => setCheckInDate(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
+                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-2 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
                   />
                 </div>
               </div>
 
               {/* Check-out Date */}
-              <div>
+              <div className="lg:col-span-2">
                 <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
-                  {isVi ? 'Ngày trả phòng' : 'Check-out'}
+                  {isVi ? 'Trả phòng' : 'Check-out'}
                 </label>
                 <div className="relative flex items-center">
                   <Calendar className="absolute left-3 h-4 w-4 text-[#003580] dark:text-sky-400" />
@@ -342,29 +342,44 @@ export default function StaysPage() {
                     type="date"
                     value={checkOutDate}
                     onChange={(e) => setCheckOutDate(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
+                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-2 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
                   />
                 </div>
               </div>
 
               {/* Guests */}
-              <div>
+              <div className="lg:col-span-2">
                 <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
-                  {isVi ? 'Số khách & Phòng' : 'Guests & Rooms'}
+                  {isVi ? 'Số khách' : 'Guests'}
                 </label>
                 <div className="relative flex items-center">
                   <Users className="absolute left-3 h-4 w-4 text-[#003580] dark:text-sky-400" />
                   <select
                     value={guestCount}
                     onChange={(e) => setGuestCount(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
+                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-2 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
                   >
-                    <option value="1 người lớn, 1 phòng">1 {isVi ? 'người lớn' : 'adult'}, 1 {isVi ? 'phòng' : 'room'}</option>
-                    <option value="2 người lớn, 1 phòng">2 {isVi ? 'người lớn' : 'adults'}, 1 {isVi ? 'phòng' : 'room'}</option>
-                    <option value="2 người lớn + 1 trẻ em, 1 phòng">2 {isVi ? 'người lớn' : 'adults'} + 1 {isVi ? 'trẻ em' : 'child'}</option>
-                    <option value="4 người lớn, 2 phòng">4 {isVi ? 'người lớn' : 'adults'}, 2 {isVi ? 'phòng' : 'rooms'}</option>
+                    <option value="1 người lớn, 1 phòng">1 {isVi ? 'người' : 'pax'}, 1 {isVi ? 'phòng' : 'room'}</option>
+                    <option value="2 người lớn, 1 phòng">2 {isVi ? 'người' : 'pax'}, 1 {isVi ? 'phòng' : 'room'}</option>
+                    <option value="2 người lớn + 1 trẻ em, 1 phòng">2 {isVi ? 'lớn' : 'adults'} + 1 {isVi ? 'trẻ' : 'child'}</option>
+                    <option value="4 người lớn, 2 phòng">4 {isVi ? 'người' : 'pax'}, 2 {isVi ? 'phòng' : 'rooms'}</option>
                   </select>
                 </div>
+              </div>
+
+              {/* SEARCH BUTTON */}
+              <div className="lg:col-span-2 sm:col-span-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const el = document.getElementById('stays-results-section')
+                    if (el) el.scrollIntoView({ behavior: 'smooth' })
+                  }}
+                  className="w-full h-[42px] flex items-center justify-center gap-2 rounded-xl bg-[#006ce4] hover:bg-[#0057b8] active:scale-95 text-white font-black text-sm shadow-md transition-all dark:bg-sky-500 dark:text-navy-950 dark:hover:bg-sky-400"
+                >
+                  <Search className="h-4 w-4 stroke-[2.5]" />
+                  <span>{isVi ? 'Tìm Kiếm' : 'Search'}</span>
+                </button>
               </div>
             </div>
           </div>

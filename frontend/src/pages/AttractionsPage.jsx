@@ -16,7 +16,8 @@ import {
   Ticket,
   Filter,
   ArrowUpDown,
-  RotateCcw
+  RotateCcw,
+  Search
 } from 'lucide-react'
 import { useCurrency } from '../context/CurrencyContext'
 import { useLanguage } from '../context/LanguageContext'
@@ -203,8 +204,8 @@ export default function AttractionsPage() {
           </h1>
 
           <div className="rounded-2xl border border-white/20 bg-white p-3 sm:p-4 shadow-2xl dark:bg-navy-900 text-slate-800 dark:text-white">
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              <div>
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-12 items-end">
+              <div className="lg:col-span-5">
                 <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
                   {isVi ? 'Điểm đến / Tên địa điểm' : 'Destination / Attraction'}
                 </label>
@@ -215,12 +216,12 @@ export default function AttractionsPage() {
                     value={searchLocation}
                     onChange={(e) => setSearchLocation(e.target.value)}
                     placeholder={isVi ? 'Bà Nà Hills, Angkor Wat, Vịnh Hạ Long...' : 'Theme park, tour or city...'}
-                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
+                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
                   />
                 </div>
               </div>
 
-              <div>
+              <div className="lg:col-span-4">
                 <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
                   {isVi ? 'Ngày tham quan dự kiến' : 'Visit Date'}
                 </label>
@@ -230,19 +231,24 @@ export default function AttractionsPage() {
                     type="date"
                     value={tourDate}
                     onChange={(e) => setTourDate(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
+                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
                   />
                 </div>
               </div>
 
-              <div>
-                <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
-                  {isVi ? 'Đặc quyền vé AeroSmart' : 'Voucher Benefits'}
-                </label>
-                <div className="flex items-center gap-2 h-9 px-3 bg-sky-50 text-[#003580] rounded-xl font-bold text-xs border border-sky-200 dark:bg-sky-950/60 dark:text-sky-300 dark:border-sky-800">
-                  <QrCode className="h-4 w-4 text-[#003580] dark:text-sky-400 shrink-0" />
-                  <span>{isVi ? 'Mã QR quét tại cổng · Không xếp hàng' : 'Instant QR Voucher'}</span>
-                </div>
+              {/* SEARCH BUTTON */}
+              <div className="lg:col-span-3 sm:col-span-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const el = document.getElementById('attractions-results-section')
+                    if (el) el.scrollIntoView({ behavior: 'smooth' })
+                  }}
+                  className="w-full h-[42px] flex items-center justify-center gap-2 rounded-xl bg-[#006ce4] hover:bg-[#0057b8] active:scale-95 text-white font-black text-sm shadow-md transition-all dark:bg-sky-500 dark:text-navy-950 dark:hover:bg-sky-400"
+                >
+                  <Search className="h-4 w-4 stroke-[2.5]" />
+                  <span>{isVi ? 'Tìm Vé Tham Quan' : 'Search Tickets'}</span>
+                </button>
               </div>
             </div>
           </div>

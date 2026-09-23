@@ -18,7 +18,8 @@ import {
   Key,
   Filter,
   ArrowUpDown,
-  RotateCcw
+  RotateCcw,
+  Search
 } from 'lucide-react'
 import { useCurrency } from '../context/CurrencyContext'
 import { useLanguage } from '../context/LanguageContext'
@@ -183,9 +184,9 @@ export default function CarRentalPage() {
           </h1>
 
           <div className="rounded-2xl border border-white/20 bg-white p-3 sm:p-4 shadow-2xl dark:bg-navy-900 text-slate-800 dark:text-white">
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-12 items-end">
+              <div className="lg:col-span-4">
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
                   {isVi ? 'Địa điểm nhận xe' : 'Pickup Location'}
                 </label>
                 <div className="relative flex items-center">
@@ -193,7 +194,7 @@ export default function CarRentalPage() {
                   <select
                     value={pickupCity}
                     onChange={(e) => setPickupCity(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
+                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
                   >
                     <option value="HAN_AIRPORT">Sân bay Nội Bài (Hà Nội)</option>
                     <option value="SGN_AIRPORT">Sân bay Tân Sơn Nhất (TP.HCM)</option>
@@ -204,8 +205,8 @@ export default function CarRentalPage() {
                 </div>
               </div>
 
-              <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
+              <div className="lg:col-span-3">
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
                   {isVi ? 'Ngày nhận xe' : 'Pickup Date'}
                 </label>
                 <div className="relative flex items-center">
@@ -214,13 +215,13 @@ export default function CarRentalPage() {
                     type="date"
                     value={pickupDate}
                     onChange={(e) => setPickupDate(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
+                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
                   />
                 </div>
               </div>
 
-              <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
+              <div className="lg:col-span-3">
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
                   {isVi ? 'Ngày trả xe' : 'Return Date'}
                 </label>
                 <div className="relative flex items-center">
@@ -229,19 +230,24 @@ export default function CarRentalPage() {
                     type="date"
                     value={returnDate}
                     onChange={(e) => setReturnDate(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
+                    className="w-full rounded-xl border border-slate-200 bg-white pl-9 pr-3 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 focus:border-[#003580] focus:outline-none dark:border-navy-700 dark:bg-navy-800 dark:text-white"
                   />
                 </div>
               </div>
 
-              <div>
-                <label className="block text-[11px] font-bold uppercase text-slate-500 dark:text-slate-400 mb-1">
-                  {isVi ? 'Bảo hiểm & Hỗ trợ' : 'Insurance'}
-                </label>
-                <div className="flex items-center gap-2 h-9 px-3 bg-emerald-50 text-emerald-800 rounded-xl font-bold text-xs border border-emerald-200 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border-emerald-800">
-                  <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0" />
-                  <span>{isVi ? 'Bảo hiểm thân vỏ 100%' : '100% Comprehensive'}</span>
-                </div>
+              {/* SEARCH BUTTON */}
+              <div className="lg:col-span-2 sm:col-span-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const el = document.getElementById('car-results-section')
+                    if (el) el.scrollIntoView({ behavior: 'smooth' })
+                  }}
+                  className="w-full h-[42px] flex items-center justify-center gap-2 rounded-xl bg-[#006ce4] hover:bg-[#0057b8] active:scale-95 text-white font-black text-sm shadow-md transition-all dark:bg-sky-500 dark:text-navy-950 dark:hover:bg-sky-400"
+                >
+                  <Search className="h-4 w-4 stroke-[2.5]" />
+                  <span>{isVi ? 'Tìm Xe' : 'Search'}</span>
+                </button>
               </div>
             </div>
           </div>
