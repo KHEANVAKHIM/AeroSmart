@@ -28,6 +28,7 @@ import { useAuth } from '../../context/AuthContext'
 import { useTheme } from '../../context/ThemeContext'
 import { useCurrency } from '../../context/CurrencyContext'
 import { useLanguage } from '../../context/LanguageContext'
+import { useBooking } from '../../context/BookingContext'
 import CountryFlag from './CountryFlag'
 
 export default function LeftSidebar({
@@ -43,6 +44,7 @@ export default function LeftSidebar({
   const { isDark, toggleTheme } = useTheme()
   const { currency, setCurrency, supportedCurrencies } = useCurrency()
   const { language, t } = useLanguage()
+  const { setActiveProductTab } = useBooking()
 
   if (!isOpen) return null
 
@@ -66,7 +68,10 @@ export default function LeftSidebar({
           <div className="bg-[#003580] dark:bg-navy-900 px-6 py-5 text-white flex items-center justify-between border-b border-blue-900/60">
             <Link
               to="/"
-              onClick={onClose}
+              onClick={() => {
+                onClose()
+                if (setActiveProductTab) setActiveProductTab('flights')
+              }}
               className="group flex items-center gap-3"
             >
               <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/15 text-white backdrop-blur-sm shadow-md transition-transform group-hover:scale-105">

@@ -159,7 +159,16 @@ export default function Header() {
           </button>
 
           {/* Brand Logo on left */}
-          <Link to="/" className="group flex items-center gap-2 shrink-0">
+          <Link
+            to="/"
+            onClick={() => {
+              if (setActiveProductTab) {
+                setActiveProductTab('flights')
+              }
+              window.scrollTo({ top: 0, behavior: 'smooth' })
+            }}
+            className="group flex items-center gap-2 shrink-0"
+          >
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#003580] text-white shadow-sm transition-transform group-hover:scale-105 dark:bg-[#006ce4]">
               <Plane className="h-5 w-5" />
             </div>
